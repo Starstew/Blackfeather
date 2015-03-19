@@ -1,0 +1,61 @@
+body {
+	font-family: sans-serif;
+	font-size: 10px;
+}
+
+#status_display {
+	padding: 3px;
+	background-color: #aaa;
+	text-transform: uppercase;
+	max-width: 714px;
+}
+
+#status_display span {
+	display: inline-block;
+	vertical-align: top;
+	padding: 3px;
+}
+
+#status_display .player_name {
+	font-weight: bold;
+	min-width: 150px;
+}
+
+#status_display .hitpoints {
+	background-color: black;
+	color: #aaa;
+	min-width: 100px;
+}
+
+#status_display .hitpoints .low {
+	color: #99f;
+}
+
+#status_display .gold {
+	background-color: #aa0;
+}
+
+#msg_display {
+	width: 360px;
+	min-width: 360px;
+	min-height: 100px;
+	float: left;
+}
+#fov_display {
+	width: 360px;
+	background-color: grey;
+	float: left;
+}
+#fov_display .fov_item {
+	float: left;
+	background-size: cover;
+	height: 150px;
+	border: 2px solid black;
+}
+
+#fov_display .fov_item span {
+	display: inline-block;
+	background-color: black;
+	color: white;
+	padding: 5px;
+}

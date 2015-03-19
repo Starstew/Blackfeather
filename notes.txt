@@ -1,0 +1,41 @@
+Features:
+* NPC reaction to other NPC (packing, hunting, fleeing)
+* NPC idle behavior
+* Treasure/items in world
+* Change equipment
+* Upgrade/downgrade weapon
+* Stackable items in inventory
+* Potions/phials
+* Tracking (spoornography)
+* Proximity sensing (not just FOV/LOS)
+* Damage mitigation based on type of damage, armor, etc.
+* Ranged attacks
+* Individual names for monsters
+* Switching between characters
+* Winning condition (retrieve black feather, return to surface)
+* Allow going "up" once macguffin found
+* Conjuring powers
+* Enchantable equipment
+* Magic items
+* Trajectory items/beings -- have a "pathing" array that dictates movement until end of array. 
+	- Slow-flying missiles/spells
+	- Charging Minotaurs
+	- Patrolling creatures
+	- Propelled clouds
+
+Technical:
+* Use 'instanceof' (e.g. 'pobj instanceof Monster')
+* Data-driven weapons, treasure
+* Better way to do handle placement rarity/frequency (better than repeating in array)
+* Mix-and-match prototype abilities to add to procgen NPCs (e.g. base Orc, but some have ability to set traps)
+* Weapons have "onDamage" and "onKill" hooks
+- When routing, consider impassable-object occupied spaces as blockers
+- Impose some pause between "presses" so turns are weightier
+
+
+UI:
+* Click to select target
+* Tooltip system can allow speech bubbles and "info" windows
+* Red glow around map when health is low
+* Game over screen (rather than Alert)
+* BUG: sometimes enemy shows in FOV but not on FOV_UI
