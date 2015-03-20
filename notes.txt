@@ -1,3 +1,6 @@
+This is just a place to keep notes about things I'd like to do with the game.
+=============================================================================
+
 Features:
 * NPC reaction to other NPC (packing, hunting, fleeing)
 * NPC idle behavior
@@ -22,15 +25,16 @@ Features:
 	- Charging Minotaurs
 	- Patrolling creatures
 	- Propelled clouds
+* Different types of maps (caverns, rooms, forests)
+* 
 
-Technical:
+Coding:
+* Monsters' routing should be limited to certain distance, if it can't get to target in x-hops, then get as close as it can(?) or not move? .onNoRouteToTarget?
 * Use 'instanceof' (e.g. 'pobj instanceof Monster')
 * Data-driven weapons, treasure
 * Better way to do handle placement rarity/frequency (better than repeating in array)
 * Mix-and-match prototype abilities to add to procgen NPCs (e.g. base Orc, but some have ability to set traps)
 * Weapons have "onDamage" and "onKill" hooks
-- When routing, consider impassable-object occupied spaces as blockers
-- Impose some pause between "presses" so turns are weightier
 
 
 UI:
@@ -38,4 +42,3 @@ UI:
 * Tooltip system can allow speech bubbles and "info" windows
 * Red glow around map when health is low
 * Game over screen (rather than Alert)
-* BUG: sometimes enemy shows in FOV but not on FOV_UI
