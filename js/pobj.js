@@ -105,10 +105,17 @@ var BlackFeather = function(x,y,factor) {
 	this._isPassable = true;
 }
 BlackFeather.extend(Pobj);
+BlackFeather.prototype.onPickup = function(pickerUpper) {
+	if (pickerUpper == Game.player) {
+		alert ("YOU FOUND THE BLACK FEATHER!\nIs it all you'd hoped for?\nAnyway, you did what you came here to do.\nTake your " + Game.player._gold + " gold and get out of here.");
+		Game.init();
+		return;
+	}
+}
 
 var Mushroom = function(x,y,factor) {
 	Pobj.call(this,x,y);
-	this._glyphColor = "#99f"
+	this._glyphColor = "#337"
 	this._glyph = "^";
 	this._name = "Mushroom";
 	this.isLoot = true;

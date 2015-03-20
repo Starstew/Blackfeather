@@ -5,13 +5,11 @@ var Being = function(x,y) {
 	this.fovPobjs = [];
 	this._lastDamagedBy = null;
 
-	// from Npc
 	this.pathTo = [];
 	this.locMemory = [];
 	this.disposition = Game.DISP_NEUTRAL;
 
-	// from Monster
-	var def = this.definition;
+	var def = this.definition; // definition from prototype
 
 	this._hitpointsMax = Math.ceil(ROT.RNG.getUniform() * (def.hitpointsRange[1] - def.hitpointsRange[0])) + def.hitpointsRange[0];
 	this._hitpoints = this._hitpointsMax;
@@ -116,7 +114,7 @@ Being.prototype._pickWeapon = function(wpool) {
 		var args = wpool[rnd_weapon];
 		this.weapon = new WeaponArbitrary(args[0],args[1],Game['DMGTYPE_' + args[2]],args[3]);
 	} else {
-		this.weapon = new window[weapon_choices.random()](0,0,true);
+		this.weapon = new Game.armory[weapon_choices.random()](0,0,true);
 	}
 }
 

@@ -10,6 +10,7 @@
 		fovBase: 6,
 
 		monsterTypes: [],
+		weaponTypes: [],
 
 		DISP_NEUTRAL: 0,
 		DISP_FRIENDLY: 1,
@@ -42,7 +43,9 @@
 		Game.clearLogDisplay();
 
 		this.monsterTypes = [];
+		this.weaponTypes = [];
 		this.parseMonsterManual();
+		this.parseArmory();
 
 		// set up the display
 		this.display = new ROT.Display();
@@ -280,6 +283,45 @@
 		}
 	}
 
+	Game.parseArmory = function() {
+		if (!Armory) { return; }
+		Game.armory = {};
+
+		for (var i in Armory) {
+			var is_valid = false;
+
+			var wep = Armory[i];
+
+			Game.armory[i] = new Function('x','y','notObj','Weapon.call(this,x,y,notObj);');
+			Game.armory[i].extend(Weapon);
+			Game.armory[i].prototype['definition'] = Armory[i];
+			Game.weaponTypes.push(Game.armory[i]);
+		}
+	}
+
+/* Armory (list of pre-defined weapons) */
+	var Armory = {
+		"Sword": {
+			"label":"Sword",
+			"damageType":"SLASH",
+			"damageRange":[6,12],
+			"glyph":"/",
+			"label":"Sword"		
+		},
+		"Dagger": {
+			"label":"Dagger",
+			"damageType":"SLASH",
+			"damageRange":[2,6],
+			"glyph":"'"	
+		},
+		"Club": {
+			"label":"Club",
+			"damageType":"BLUNT",
+			"damageRange":[1,6],
+			"glyph":"!"
+		}
+	}
+
 /* MonsterManual */
 	var MonsterManual = {
 		"Artist" : {
@@ -287,15 +329,13 @@
 			"glyphColor":"#333",
 			"species":"Artist",
 			"hitpointsRange":[4,13],
-			"difficulty":1,
+			"difficulty":2,
 			"fovFactor":1,
 			"weaponPool": {
 				"WeaponArbitrary" : [7,8,'HEAT','Thingy']
 			},
 			"lootPool": {
-				"GoldPile": 10,
-				"GoldPile": 30,
-				"GoldPile": 2,
+				"GoldPile": 1
 			},
 			"img": "gu.jpg"
 		},

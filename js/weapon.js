@@ -3,11 +3,16 @@ var Weapon = function(x,y,notObj) {
 	if (notObj != true) {
 		Pobj.call(this,x,y); // only make a proper object out of it if needed
 	}
-	//this.damageType = Game.DMGTYPE_SLASH;
-	//this.damageRange = [1,10];
+
+	var def = this.definition;
+	this.damageType = def.damageType;
+	this.damageRange = def.damageRange;
+	this._glyph = def.glyph;
+	this._name = def.label;
+	this.range = (def.range ? def.range : 1); // 1 == melee
 }
 Weapon.extend(Pobj);
-Weapon.prototype.inflictDamage = function(targetPobj,wielder) {
+Weapon.prototype.inflictDamage = function(targetPobj, wielder) {
 	var dmg = Math.floor((ROT.RNG.getUniform() * (this.damageRange[1] - this.damageRange[0])) + this.damageRange[0]);
 	if (wielder._xpLevel) {
 		dmg += wielder._xpLevel * 2;
@@ -17,36 +22,7 @@ Weapon.prototype.inflictDamage = function(targetPobj,wielder) {
 	}
 }
 
-/* Sword */
-var Sword = function(x,y,notObj) {
-	Weapon.call(this,x,y,notObj);
-	this.damageType = Game.DMGTYPE_SLASH;
-	this.damageRange = [6,12];
-	this._glyph = "/";
-	this._name = "Sword";
-}
-Sword.extend(Weapon);
-
-/* Dagger */
-var Dagger = function(x,y,notObj) {
-	Weapon.call(this,x,y,notObj);
-	this.damageType = Game.DMGTYPE_SLASH;
-	this.damageRange = [2,8];
-	this._glyph = "'";
-	this._name = "Dagger";
-}
-Dagger.extend(Weapon);
-
-/* Club */
-var Club = function(x,y,notObj) {
-	Weapon.call(this,x,y,notObj);
-	this.damageType = Game.DMGTYPE_BLUNT;
-	this.damageRange = [1,6];
-	this._name = "Club";
-}
-Club.extend(Weapon);
-
-/* Arbitrary (innate/hand-to-hand) */
+/* Arbitrary - to be used for monsters' natural weaponry (claws, pokers, thwippy tentacles) */
 var WeaponArbitrary = function(dmgMin,dmgMax,dmgType,wpName) {
 	// for when we just want to give a monster or something an innate weapon
 	this.damageType = dmgType;
@@ -54,6 +30,3 @@ var WeaponArbitrary = function(dmgMin,dmgMax,dmgType,wpName) {
 	this._name = wpName;
 }
 WeaponArbitrary.prototype.inflictDamage = Weapon.prototype.inflictDamage;
-
-
-/* Armory (weapon data) */
