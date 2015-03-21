@@ -124,7 +124,7 @@ Player.prototype.resolveBump = function(pobj) {
 }
 
 Player.prototype.resolveColocation = function() {
-	// check the space we're standing on for _ispassable items we might want to pick up, or get trapped by, etc.
+	// check the space we're standing on for ispassable items we might want to pick up, or get trapped by, etc.
 	var x = this._x;
 	var y = this._y;
 	var colo_objs = Game.map.getObjectsAtLoc(x,y,this);

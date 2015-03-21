@@ -85,7 +85,7 @@
 				if (canPass == true && Game.map.pobjCells && Game.map.pobjCells[xy_key]) { // can pass over all objects in that space
 					for(var i in Game.map.pobjCells[xy_key]) {
 						var testpobj = Game.map.pobjCells[xy_key][i];
-						if (testpobj._isPassable == false && (xy_key != fx +","+fy)) {
+						if (testpobj.isPassable == false && (xy_key != fx +","+fy)) {
 							canPass = false;
 							break;
 						}

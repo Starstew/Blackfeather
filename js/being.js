@@ -34,11 +34,11 @@ Being.extend(Pobj);
 Being.prototype.scanFov = function() {
 	this.fovMapCells = [];
 	var lightPasses = function(x, y) {
-	    var key = x+","+y;
-	    if (key in Game.map.cells) { // is part of the map
-	    	return (Game.map.cells[key].length > 0);
-	    }
-	    return false;
+		var key = x+","+y;
+		if (key in Game.map.cells) { // is part of the map
+			return (Game.map.cells[key].length > 0);
+		}
+		return false;
 	}
 	var fov = new ROT.FOV.RecursiveShadowcasting(lightPasses);
 	var tbfov = this.fovMapCells;
@@ -114,7 +114,7 @@ Being.prototype._pickWeapon = function(wpool) {
 		var args = wpool[rnd_weapon];
 		this.weapon = new WeaponArbitrary(args[0],args[1],Game['DMGTYPE_' + args[2]],args[3]);
 	} else {
-		this.weapon = new Game.armory[weapon_choices.random()](0,0,true);
+		this.weapon = new Game.armory[rnd_weapon]();
 	}
 }
 

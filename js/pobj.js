@@ -1,13 +1,6 @@
-/* Pobj */
-/* (Physical Object)
-- can appear on map
-- possible to be carried
-- can relocate to new space
-- may be passable/impassable
-- may obscure LOS
-- detectTypes (ethereal, trap, track, scent)
-- has glyph (can be drawn)
-- [other universal states? flammable? temporary?] */
+/* Pobj 
+	A "placeable" object. */
+
 var Pobj = function(x,y) {
 	this._x = x;
 	this._y = y;
@@ -15,17 +8,19 @@ var Pobj = function(x,y) {
 		this.addToPobjList();
 	}
 }
+
 Pobj.prototype = {
-	_isPassable: false,
+	isPassable: false,
 	inventory: [],
 	objectId: undefined,
 	_draw: function() {
-		Game.display.draw(this._x,this._y,this._glyph,this._glyphColor,Game.mapFloorColor);
+		Game.display.draw(this._x, this._y, this._glyph, this._glyphColor, Game.mapFloorColor);
 	},
 	getX: function() { return this._x + 0; },
 	getY: function() { return this._y + 0; },
+
 	relocate: function(tx,ty) {
-		// ! assumes destination is pre-vetted
+		// assumes destination is pre-validated
 		// from-space
 		var fx = this._x;
 		var fy = this._y;
@@ -33,44 +28,25 @@ Pobj.prototype = {
 		// update item's coordinates
 		this._x = tx;
 		this._y = ty;
-		
-		var key = fx+","+fy;
-		if (Game.fovMapCells[key]) {
-			Game.display.draw(fx, fy, " ","#fff",Game.mapFloorColor); // refill from-space
-			this._draw(); // pobj will draw itself
-		}
 
 		Game.map.updateObjectMap();
 	},
+
 	addToPobjList : function() {
 		Game.map.pobjList.push(this);
 		this.objectId = 'pobj_' + Game.map.pobjCounter++;
-	},
-	resolveBump : function(e) {
-		// stub
-	},
-	moveToInventoryOf: function(pobj) {
-		// move this physical object into the inventory of another, removing it from map or other inventory it is in
-		pobj.inventory.push(this); // add to target pobj's inventory
-		Game.removePobj(this); // remove from map/scheduler
-	},
-	resolveColocation : function() {
-		// resolve being in same space with something
-		// stub
 	}
 
-	// onTouch, onPickup, onDrop, onThrow, onUse <-- functions that infer actions
+	// resolveBump, resolveColocation, onTouch, onPickup, onDrop, onThrow, onUse <-- functions that infer actions
 
 }
-
-
 
 /* random/temp pobjs */
 /* Egress */
 var Egress = function(x,y,et) {
 	Pobj.call(this,x,y);
 	this.egressType = et;
-	this._isPassable = true;
+	this.isPassable = true;
 	this._glyph = (et == Game.EGRESS_ENTRANCE) ? "<" : ">";
 	this._glyphColor = "#000";
 	this._name = (et == Game.EGRESS_ENTRANCE) ? "Up" : "Down";
@@ -86,7 +62,7 @@ var GoldPile = function(x,y,amount) {
 	this._name = "Pile of Gold";
 	this.amount = amount;
 	this.isLoot = true;
-	this._isPassable = true;
+	this.isPassable = true;
 }
 GoldPile.extend(Pobj);
 GoldPile.prototype.onPickup = function(pickerUpper) {
@@ -102,7 +78,7 @@ var BlackFeather = function(x,y,factor) {
 	this._glyph = "~";
 	this._name = "Black Feather";
 	this.isLoot = true;
-	this._isPassable = true;
+	this.isPassable = true;
 }
 BlackFeather.extend(Pobj);
 BlackFeather.prototype.onPickup = function(pickerUpper) {
@@ -119,7 +95,7 @@ var Mushroom = function(x,y,factor) {
 	this._glyph = "^";
 	this._name = "Mushroom";
 	this.isLoot = true;
-	this._isPassable = true;
+	this.isPassable = true;
 	this.power = factor;
 }
 Mushroom.extend(Pobj);

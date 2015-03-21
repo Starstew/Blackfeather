@@ -1,7 +1,7 @@
 /* Weapon */
-var Weapon = function(x,y,notObj) {
-	if (notObj != true) {
-		Pobj.call(this,x,y); // only make a proper object out of it if needed
+var Weapon = function(x,y) {
+	if (x && y) { // do pobj constructor only if placing
+		Pobj.call(this,x,y);
 	}
 
 	var def = this.definition;

@@ -25,6 +25,8 @@ body {
 	background-color: black;
 	color: #aaa;
 	min-width: 100px;
+	text-align: center;
+	letter-spacing: 2px;
 }
 
 #status_display .hitpoints .low {
@@ -50,7 +52,7 @@ body {
 	float: left;
 	background-size: cover;
 	height: 150px;
-	border: 2px solid black;
+	border: 1px solid black;
 }
 
 #fov_display .fov_item span {

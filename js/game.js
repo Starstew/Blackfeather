@@ -1,5 +1,7 @@
-// Blackfeather 7DRL 2015
-// requires: rot.js, jquery
+/* Blackfeather, a roguelike created initially for the 7DRL 2015
+	Originally created by Ed Stastny (github.com/starstew)
+	Requires: rot.js, jquery
+*/
 
 /* Game */
 	var Game = {
@@ -53,15 +55,15 @@
 			fontSize: 16
 		});
 		document.querySelector('#map_display').appendChild(this.display.getContainer());
-		
+
 		this._scheduler = new ROT.Scheduler.Simple();
 
 		// go to first map
 		this.depth = 0;
 		this.delveDeeper();
-		
-	    this.engine = new ROT.Engine(this._scheduler);
-	    this.engine.start();
+
+		this.engine = new ROT.Engine(this._scheduler);
+		this.engine.start();
 	}
 
 	Game._generateMap = function() {
@@ -102,7 +104,8 @@
 		// populate with items
 		// populate with npcs
 		this.populateMonsters(this.depth * 8);//var difficulty_quota = this.depth * 5;
-		
+
+		// start it back up
 		if (this.engine) {
 			this.engine.start();
 		}
@@ -144,13 +147,12 @@
 			var y = parseInt(parts[1]);
 			var fgcolor = "#fff";
 			var bgcolor = (this.fovMapCells[key] == '' ? this.mapWallColor : this.mapFloorColor);
-			//this.display.draw(x,y,this.fovMapCells[key],fgcolor,bgcolor);
 			this.display.draw(x,y,this.map.cells[key],fgcolor,bgcolor);
 
 			// pobj on it?
 			var pkey = x+","+y;
 			if (this.map.pobjCells[pkey]) {
-				var pobj = this.map.pobjCells[pkey][0];
+				var pobj = this.map.pobjCells[pkey][0]; // draw the first one on the list
 				pobj._draw();
 			}
 		}
@@ -178,7 +180,8 @@
 		this.map.updateObjectMap();
 	}
 
-	
+	/* Get what would be the result of a move of 'pobj' into coordinate 'x,y'
+		Returns object that has property 'isOpen' (Boolean) and an optional 'bumpedEntity' */
 	Game.getMoveResult = function(pobj,x,y) {
 		var newKey = x + "," + y;
 		var e_array = this.map.pobjCells[newKey];
@@ -186,7 +189,7 @@
 		if (e_array && e_array.length > 0) {
 			var len = e_array.length;
 			for (var i = len - 1; i >= 0; i--) { // go in reverse to get "top" entity
-				if (e_array[i]._isPassable == false) {
+				if (e_array[i].isPassable == false) {
 					ae = e_array[i];
 					break;
 				}
@@ -263,8 +266,8 @@
 			po_html.css('background-image','url("imgs/'+po._img+'")');
 			displayed++;
 		}
-		var percent = Math.min(50,Math.floor(100/displayed))-3;
-		$('#fov_display .fov_item').css('min-width',percent+'%').css('max-width',percent+'%');
+		var imgwidth = Math.floor($('#fov_display').innerWidth() / Math.max(2,displayed))-2;;
+		$('#fov_display .fov_item').css('width',imgwidth+'px');
 	}
 
 	Game.parseMonsterManual = function() {
@@ -299,7 +302,9 @@
 		}
 	}
 
-/* Armory (list of pre-defined weapons) */
+
+/* Armory (list of pre-defined weapons) 
+	JSON-style data */
 	var Armory = {
 		"Sword": {
 			"label":"Sword",
@@ -322,7 +327,8 @@
 		}
 	}
 
-/* MonsterManual */
+/* MonsterManual 
+	JSON-style data */
 	var MonsterManual = {
 		"Artist" : {
 			"glyph":"a",
@@ -332,7 +338,10 @@
 			"difficulty":2,
 			"fovFactor":1,
 			"weaponPool": {
-				"WeaponArbitrary" : [7,8,'HEAT','Thingy']
+				"WeaponArbitrary" : [7,8,'HEAT','Thingy'],
+				"WeaponArbitrary" : [7,8,'HEAT','Doohickey'],
+				"WeaponArbitrary" : [7,8,'HEAT','Implement'],
+				"WeaponArbitrary" : [7,13,'PIERCE','Pen']
 			},
 			"lootPool": {
 				"GoldPile": 1
@@ -408,7 +417,7 @@
 			"fovFactor":2,
 			"weaponPool": {
 				"Club": 2,
-				"WeaponArbitrary" : [6,18,'BLUNT','Baudy Puppet']
+				"WeaponArbitrary" : [6,18,'BLUNT','Bawdy Puppet']
 			},
 			"lootPool": {
 				"GoldPile": 10,
@@ -457,6 +466,26 @@
 			"img": "gnome.jpg"
 		},
 
+		"Shrub" : {
+			"glyph":"s",
+			"glyphColor":"#484",
+			"species":"Shrub",
+			"hitpointsRange":[20,40],
+			"difficulty":12,
+			"fovFactor":2,
+			"weaponPool": {
+				"WeaponArbitrary" : [12,24,'SLASH','Projectile Nuts'],
+				"WeaponArbitrary" : [10,25,'BLUNT','Buggery Root']
+			},
+			"lootPool": {
+				"GoldPile": 50,
+				"GoldPile": 150,
+				"GoldPile": 70,
+				"Mushroom": 10
+			},
+			"img": "shrub.jpg"
+		},
+
 		"Minotaur" : {
 			"glyph":"m",
 			"glyphColor":"#444",
@@ -465,8 +494,8 @@
 			"difficulty":20,
 			"fovFactor":3,
 			"weaponPool": {
-				"WeaponArbitrary" : [12,30,'SLASH','Axe'],
-				"WeaponArbitrary" : [15,25,'PIERCE','Horny Gore']
+				"WeaponArbitrary" : [12,24,'SLASH','Axe'],
+				"WeaponArbitrary" : [10,25,'PIERCE','Horny Gore']
 			},
 			"lootPool": {
 				"GoldPile": 50,
@@ -485,7 +514,7 @@
 			"difficulty":70,
 			"fovFactor":3,
 			"weaponPool": {
-				"WeaponArbitrary" : [22,60,'HEAT','Thwippy Tentacle']
+				"WeaponArbitrary" : [14,32,'HEAT','Thwippy Tentacle']
 			},
 			"lootPool": {
 				"GoldPile": 40,
@@ -505,7 +534,8 @@
 			"difficulty":40,
 			"fovFactor":5,
 			"weaponPool": {
-				"WeaponArbitrary" : [22,60,'HEAT','Gaze']
+				"WeaponArbitrary" : [9,32,'BLUNT','Giant Club'],
+				"WeaponArbitrary" : [10,30,'HEAT','Gaze']
 			},
 			"lootPool": {
 				"GoldPile": 100,
@@ -522,7 +552,7 @@
 			"difficulty":55,
 			"fovFactor":4,
 			"weaponPool": {
-				"WeaponArbitrary" : [35,75,'HEAT','Hellstank']
+				"WeaponArbitrary" : [10,35,'HEAT','Hellstank']
 			},
 			"lootPool": {
 				"GoldPile": 100,
