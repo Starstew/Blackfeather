@@ -7,7 +7,7 @@ var Being = function(x,y) {
 
 	this.pathTo = [];
 	this.locMemory = [];
-	this.disposition = Game.DISP_NEUTRAL;
+	this.disposition = BFRL.DISP_NEUTRAL;
 
 	var def = this.definition; // definition from prototype
 
@@ -19,14 +19,14 @@ var Being = function(x,y) {
 	this._glyph = def.glyph;
 	this._glyphColor = def.glyphColor;
 	this._pickWeapon(def.weaponPool);
-	this.fovRange = def.fovFactor * Game.fovBase;
+	this.fovRange = def.fovFactor * BFRL.settings.fovBase;
 
 	var loot_choices = Object.keys(def.lootPool);
 	var loot_key = loot_choices.random();
 	var loot_mod = def.lootPool[loot_key];
 	this.loot = {type:window[loot_key], modifier:loot_mod};
 
-	this.aggressionTarget = Game.player; // temp for expediency, TODO:dynamic targets
+	this.aggressionTarget = this._game.player; // temp for expediency, TODO:dynamic targets
 };
 
 Being.extend(Pobj);
@@ -35,25 +35,25 @@ Being.prototype.scanFov = function() {
 	this.fovMapCells = [];
 	var lightPasses = function(x, y) {
 		var key = x+","+y;
-		if (key in Game.map.cells) { // is part of the map
-			return (Game.map.cells[key].length > 0);
+		if (key in BFRL.currentGame.map.cells) { // is part of the map
+			return (BFRL.currentGame.map.cells[key].length > 0);
 		}
 		return false;
 	}
 	var fov = new ROT.FOV.RecursiveShadowcasting(lightPasses);
 	var tbfov = this.fovMapCells;
-	fov.compute(this.getX(), this.getY(), this.fovRange, function(x, y, r, visibility) {
+	fov.compute(this._x, this._y, this.fovRange, function(x, y, r, visibility) {
 		var key = x+","+y;
-	    tbfov[key] = Game.map.cells[key];
+	 	tbfov[key] = BFRL.currentGame.map.cells[key];
 	});
 };
 
 Being.prototype.updateFovPobjs = function() {
 	this.fovPobjs = [];
 	// loop through map's pobjs, compare to fov map points
-	var len = Game.map.pobjList.length;
+	var len = this._game.map.pobjList.length;
 	for (var i = 0; i < len; i++) {
-		var po = Game.map.pobjList[i];
+		var po = this._game.map.pobjList[i];
 		var key = po.getX() + "," + po.getY();
 		if(this.fovMapCells[key] && !this.fovPobjs[key] && this != po) {
 			this.fovPobjs.push(po)
@@ -65,7 +65,7 @@ Being.prototype.receiveDamage = function(dmg, dmgType, dmgInflictor) {
 	// for now, just take damage (nuances, resistances, etc TODO)
 	this._hitpoints -= dmg;
 	this._lastDamagedBy = dmgInflictor;
-	Game.addLogMessage(this._name + " takes " + dmg + " damage from " + dmgInflictor._name + "'s " + dmgInflictor.weapon._name);
+	this._game.addLogMessage(this._name + " takes " + dmg + " damage from " + dmgInflictor._name + "'s " + dmgInflictor.weapon._name);
 }
 
 Being.prototype.act = function() {
@@ -77,19 +77,19 @@ Being.prototype.act = function() {
 }
 
 Being.prototype.moveToward = function() {
-	var path = Game.map.getPath(this._x,this._y,this.pathTo[0],this.pathTo[1],4);
+	var path = this._game.map.getPath(this._x,this._y,this.pathTo[0],this.pathTo[1],4);
 
 	// now check if we bump before actually moving
 	if (path.length < 1) { return; }
 
 	x = path[0][0];
 	y = path[0][1];
-	var moveResult = Game.getMoveResult(this,x,y);
+	var moveResult = this._game.getMoveResult(this,x,y);
 	if (moveResult.isOpen != true) {
 		if (moveResult.bumpedEntity != null) {
 			var be = moveResult.bumpedEntity;
 			if (this.resolveBump) { this.resolveBump(be); }
-			Game.map.updateObjectMap();
+			this._game.map.updateObjectMap();
 		}
 	} else {
 		this.relocate(x,y);
@@ -97,10 +97,10 @@ Being.prototype.moveToward = function() {
 }
 
 Being.prototype.resolveDeath = function() {
-	Game.addLogMessage(this._name + " slain by " + this._lastDamagedBy._name);
+	this._game.addLogMessage(this._name + " slain by " + this._lastDamagedBy._name);
 	this.doTurn = function(){}; // empty it out to make sure it doesn't do any last gasp stuff
 	this.dropLoot();
-	Game.removePobj(this);
+	this._game.removePobj(this);
 }
 
 Being.prototype.doTurn = function() {
@@ -114,14 +114,14 @@ Being.prototype._pickWeapon = function(wpool) {
 		var args = wpool[rnd_weapon];
 		this.weapon = new WeaponArbitrary(args[0],args[1],Game['DMGTYPE_' + args[2]],args[3]);
 	} else {
-		this.weapon = new Game.armory[rnd_weapon]();
+		this.weapon = new BFRL.weaponManifest[rnd_weapon]();
 	}
 }
 
 Being.prototype.dropLoot = function() {
 	if (this.loot && this.loot.type) {
 		var l = new this.loot.type(this._x,this._y,this.loot.modifier);
-		Game.addLogMessage(this._name + " dropped a " + l._name);
+		this._game.addLogMessage(this._name + " dropped a " + l._name);
 		l.isLoot = true;
 		l._isPassable = true;
 	}

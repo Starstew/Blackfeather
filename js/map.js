@@ -78,13 +78,15 @@
 
 		getPath: function(fx,fy,tx,ty,topo) {
 			topo = (topo) ? topo : 8; // default to 8
+
 			var passableCallback = function(x,y) {
 				var xy_key = x+","+y;
-				var canPass = (xy_key in Game.map.cells); // is an actual map location
+				var map = BFRL.currentGame.map;
+				var canPass = (xy_key in map.cells); // is an actual map location
 				
-				if (canPass == true && Game.map.pobjCells && Game.map.pobjCells[xy_key]) { // can pass over all objects in that space
-					for(var i in Game.map.pobjCells[xy_key]) {
-						var testpobj = Game.map.pobjCells[xy_key][i];
+				if (canPass == true && map.pobjCells && map.pobjCells[xy_key]) { // can pass over all objects in that space
+					for(var i in map.pobjCells[xy_key]) {
+						var testpobj = map.pobjCells[xy_key][i];
 						if (testpobj.isPassable == false && (xy_key != fx +","+fy)) {
 							canPass = false;
 							break;
@@ -93,6 +95,7 @@
 				}
 				return canPass;
 			}
+
 			var astar = new ROT.Path.AStar(tx,ty,passableCallback,{topology:topo});
 			path = [];
 			var pathCallback = function(x,y) {
@@ -105,8 +108,8 @@
 
 		_addEntranceAndExit: function() {
 			// get list of walls
-			var width = Game.display.getOptions().width;
-			var height = Game.display.getOptions().height;
+			var width = BFRL.display.getOptions().width;
+			var height = BFRL.display.getOptions().height;
 			var walls = [];
 			var walls_for_egress = [];
 			for (var w = 0; w < width; w++) {

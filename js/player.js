@@ -28,25 +28,22 @@ Player.prototype.definition = {
 
 Player.prototype.act = function() {
 	if (this._hitpoints <= 0) {
-		Game.engine.lock();
-		alert("You have been killed by " + this._lastDamagedBy._name + "'s " + this._lastDamagedBy.weapon._name + "!\nDepth: "+Game.depth+"\nGold: "+this._gold);
-		Game.init();
+		this._game.showGameOver();
 		return;
 	}
 
 	// get everything in order to draw the player's fov
-	Game.map.updateObjectMap();
+	this._game.map.updateObjectMap();
 	this.drawFov();
 	this.updateFovPobjs();
 	this._draw();
 
 	// update the UI
-	Game.refreshUi();
+	this._game.refreshUi();
 
 	// stop the engine and wait for next input
-	Game.engine.lock();
-	setTimeout(function(){window.addEventListener("keydown",Game.player);},100); // pause between inputs
-	//window.addEventListener("keydown",this);
+	this._game.engine.lock();
+	window.addEventListener("keydown",this);
 }
 
 Player.prototype.handleEvent = function(e) {
@@ -71,7 +68,7 @@ Player.prototype.handleEvent = function(e) {
     var newKey = newX + "," + newY;
 
     // is it a map space
-    var moveResult = Game.getMoveResult(this,newX,newY);
+    var moveResult = this._game.getMoveResult(this,newX,newY);
 	if (moveResult.isOpen != true) {
 		if (moveResult.bumpedEntity != null) {
 			var be = moveResult.bumpedEntity;
@@ -82,12 +79,12 @@ Player.prototype.handleEvent = function(e) {
 		this.resolveColocation();
 	}
     window.removeEventListener("keydown", this);
-    Game.engine.unlock();
+    this._game.engine.unlock();
 };
 
 Player.prototype.drawFov = function() {
 	this.scanFov();
-	Game.fovMapCells = this.fovMapCells;
+	this._game.fovMapCells = this.fovMapCells;
 	for (var i in this.fovMapCells) {
 		if (typeof this.fovMapCells[i] == 'function') { continue; };
 		var mc = this.fovMapCells[i];
@@ -99,10 +96,10 @@ Player.prototype.drawFov = function() {
 			mc = '';
 		}
 		//mc = (mc ? ' ':'');
-		Game.seenMapCells[i] = mc;
-		Game.fovMapCells[i] = mc;
+		this._game.seenMapCells[i] = mc;
+		this._game.fovMapCells[i] = mc;
 	}
-	Game.drawVisibleMap();
+	this._game.drawVisibleMap();
 };
 
 Player.prototype.resolveBump = function(pobj) {
@@ -116,7 +113,7 @@ Player.prototype.resolveBump = function(pobj) {
 		if (this._xp>=this._nextLevelXp) {
 			this._xpLevel += 1;
 			this._nextLevelXp += Math.floor(this._xpLevel * 50);
-			Game.addLogMessage("<b>LEVEL UP TO " + this._xpLevel + "</b>");
+			this._game.addLogMessage("<b>LEVEL UP TO " + this._xpLevel + "</b>");
 			this._hitpointsMax += this._xpLevel;
 			this._hitpoints = this._hitpointsMax;
 		}
@@ -127,15 +124,15 @@ Player.prototype.resolveColocation = function() {
 	// check the space we're standing on for ispassable items we might want to pick up, or get trapped by, etc.
 	var x = this._x;
 	var y = this._y;
-	var colo_objs = Game.map.getObjectsAtLoc(x,y,this);
+	var colo_objs = this._game.map.getObjectsAtLoc(x,y,this);
 	var len = colo_objs.length;
 	for (var i = 0; i < len; i++) {
 		var cobj = colo_objs[i];
 		if (cobj.onPickup) {
 			cobj.onPickup(this);
 		}
-		if (cobj == Game.map.exit) {
-			Game.delveDeeper();
+		if (cobj == this._game.map.exit) {
+			this._game.delveDeeper();
 		}
 	}
 }
