@@ -210,9 +210,8 @@ BFRL.game.prototype = {
 				BFRL.display.draw(x,y,this.fovMapCells[key],fgcolor,bgcolor);
 
 				// pobj on it?
-				var pkey = x+","+y;
-				if (this.map.pobjCells[pkey]) {
-					var pobj = this.map.pobjCells[pkey][0]; // draw the first one on the list
+				if (this.map.pobjCells[key]) {
+					var pobj = this.map.pobjCells[key][0]; // draw the first one on the list
 					pobj._draw();
 				}
 			}

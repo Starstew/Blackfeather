@@ -37,13 +37,11 @@
 		},
 
 		updateObjectMap: function() {
-			this.pobjCells = [];
+			this.pobjCells = {};
 			for (var i = 0; i < this.pobjList.length; i++) {
 				var po = this.pobjList[i];
-				var pkey = po.getX() + "," + po.getY();
-				if (!this.pobjCells[pkey]) {
-					this.pobjCells[pkey] = [];
-				}
+				var pkey = po._x + "," + po._y;
+				this.pobjCells[pkey] = this.pobjCells[pkey] || [];
 				this.pobjCells[pkey].push(po);
 			}
 		},

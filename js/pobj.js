@@ -15,6 +15,8 @@ BFRL.Pobj.prototype = {
 	inventory: [],
 	objectId: undefined,
 	_draw: function() {
+		this._x = parseInt(this._x);
+		this._y = parseInt(this._y);
 		BFRL.display.draw(this._x, this._y, this._glyph, this._glyphColor, BFRL.settings.mapFloorColor);
 	},
 	getX: function() { return this._x + 0; },
@@ -48,8 +50,9 @@ BFRL.worldPobjs.Egress = function(x,y,et) {
 	BFRL.Pobj.call(this,x,y);
 	this.egressType = et;
 	this.isPassable = true;
+	this.isSightBlocker = true;
 	this._glyph = (et == BFRL.EGRESS_ENTRANCE) ? "<" : ">";
-	this._glyphColor = "#000";
+	this._glyphColor = "#111";
 	this._name = (et == BFRL.EGRESS_ENTRANCE) ? "Up" : "Down";
 }
 BFRL.worldPobjs.Egress.extend(BFRL.Pobj);

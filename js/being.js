@@ -56,7 +56,7 @@ BFRL.Being.prototype.updateFovPobjs = function() {
 		var po = this._game.map.pobjList[i];
 		var key = po.getX() + "," + po.getY();
 		if(this.fovMapCells[key] && !this.fovPobjs[key] && this != po) {
-			this.fovPobjs.push(po)
+			this.fovPobjs.push(po);
 		}
 	}
 }
