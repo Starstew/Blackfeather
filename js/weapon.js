@@ -1,7 +1,7 @@
 /* Weapon */
-var Weapon = function(x,y) {
+BFRL.Weapon = function(x,y) {
 	if (x && y) { // do pobj constructor only if placing
-		Pobj.call(this,x,y);
+		BFRL.Pobj.call(this,x,y);
 	}
 
 	var def = this.definition;
@@ -11,8 +11,8 @@ var Weapon = function(x,y) {
 	this._name = def.label;
 	this.range = (def.range ? def.range : 1); // 1 == melee
 }
-Weapon.extend(Pobj);
-Weapon.prototype.inflictDamage = function(targetPobj, wielder) {
+BFRL.Weapon.extend(BFRL.Pobj);
+BFRL.Weapon.prototype.inflictDamage = function(targetPobj, wielder) {
 	var dmg = Math.floor((ROT.RNG.getUniform() * (this.damageRange[1] - this.damageRange[0])) + this.damageRange[0]);
 	if (wielder._xpLevel) {
 		dmg += wielder._xpLevel * 2;
@@ -23,10 +23,10 @@ Weapon.prototype.inflictDamage = function(targetPobj, wielder) {
 }
 
 /* Arbitrary - to be used for monsters' natural weaponry (claws, pokers, thwippy tentacles) */
-var WeaponArbitrary = function(dmgMin,dmgMax,dmgType,wpName) {
+BFRL.WeaponArbitrary = function(dmgMin,dmgMax,dmgType,wpName) {
 	// for when we just want to give a monster or something an innate weapon
 	this.damageType = dmgType;
 	this.damageRange = [dmgMin,dmgMax];
 	this._name = wpName;
 }
-WeaponArbitrary.prototype.inflictDamage = Weapon.prototype.inflictDamage;
+BFRL.WeaponArbitrary.prototype.inflictDamage = BFRL.Weapon.prototype.inflictDamage;

@@ -43,6 +43,14 @@ body {
 	min-height: 100px;
 	float: left;
 }
+.levelup {
+	display: inline-block;
+	font-weight: bold;
+	color: white;
+	background-color: black;
+	padding: 0px 10px;
+	white-space: nowrap;
+}
 #fov_display {
 	width: 360px;
 	background-color: grey;

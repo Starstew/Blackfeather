@@ -1,5 +1,5 @@
 /* Map  */
-	var Map = function() {
+	BFRL.Map = function() {
 		this.cells = [];
 		this.freeCells = [];
 		this.pobjCells = [];
@@ -12,7 +12,7 @@
 		this._generateCells();
 	}
 
-	Map.prototype = {
+	BFRL.Map.prototype = {
 		_generateCells : function() {
 			var digger = new ROT.Map.Digger();
 			digger.create(this._digCallback.bind(this));
@@ -158,14 +158,14 @@
 	 		var key = walls_for_egress.splice(index, 1)[0];
 	 		
 	 		var xy = key.split(",");
-			this.entrance = new Egress(xy[0],xy[1],Game.EGRESS_ENTRANCE);
+			this.entrance = new BFRL.worldPobjs.Egress(xy[0],xy[1], BFRL.EGRESS_ENTRANCE);
 			this.cells[key] = "<";
 
 			// place exit randomly, but at minimum path-length from entrance
 			var index = Math.floor(ROT.RNG.getUniform() * walls.length);
 	 		var key = walls.splice(index, 1)[0];
 	 		var xy = key.split(",");
-			this.exit = new Egress(xy[0],xy[1],Game.EGRESS_EXIT);
+			this.exit = new BFRL.worldPobjs.Egress(xy[0],xy[1], BFRL.EGRESS_EXIT);
 			this.cells[key] = ">";
 		}
 	}

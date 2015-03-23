@@ -1,6 +1,6 @@
 /* Being (Pobj) */
-var Being = function(x,y) {
-	Pobj.call(this,x,y);
+BFRL.Being = function(x,y) {
+	BFRL.Pobj.call(this,x,y);
 	this.fovMapCells = [];
 	this.fovPobjs = [];
 	this._lastDamagedBy = null;
@@ -24,14 +24,14 @@ var Being = function(x,y) {
 	var loot_choices = Object.keys(def.lootPool);
 	var loot_key = loot_choices.random();
 	var loot_mod = def.lootPool[loot_key];
-	this.loot = {type:window[loot_key], modifier:loot_mod};
+	this.loot = {type:BFRL.worldPobjs[loot_key], modifier:loot_mod};
 
 	this.aggressionTarget = this._game.player; // temp for expediency, TODO:dynamic targets
 };
 
-Being.extend(Pobj);
+BFRL.Being.extend(BFRL.Pobj);
 
-Being.prototype.scanFov = function() {
+BFRL.Being.prototype.scanFov = function() {
 	this.fovMapCells = [];
 	var lightPasses = function(x, y) {
 		var key = x+","+y;
@@ -48,7 +48,7 @@ Being.prototype.scanFov = function() {
 	});
 };
 
-Being.prototype.updateFovPobjs = function() {
+BFRL.Being.prototype.updateFovPobjs = function() {
 	this.fovPobjs = [];
 	// loop through map's pobjs, compare to fov map points
 	var len = this._game.map.pobjList.length;
@@ -61,14 +61,14 @@ Being.prototype.updateFovPobjs = function() {
 	}
 }
 
-Being.prototype.receiveDamage = function(dmg, dmgType, dmgInflictor) {
+BFRL.Being.prototype.receiveDamage = function(dmg, dmgType, dmgInflictor) {
 	// for now, just take damage (nuances, resistances, etc TODO)
 	this._hitpoints -= dmg;
 	this._lastDamagedBy = dmgInflictor;
 	this._game.addLogMessage(this._name + " takes " + dmg + " damage from " + dmgInflictor._name + "'s " + dmgInflictor.weapon._name);
 }
 
-Being.prototype.act = function() {
+BFRL.Being.prototype.act = function() {
 	if (this._hitpoints <= 0) {
 		this.resolveDeath();
 	}
@@ -76,7 +76,7 @@ Being.prototype.act = function() {
 	this.doTurn();
 }
 
-Being.prototype.moveToward = function() {
+BFRL.Being.prototype.moveToward = function() {
 	var path = this._game.map.getPath(this._x,this._y,this.pathTo[0],this.pathTo[1],4);
 
 	// now check if we bump before actually moving
@@ -96,29 +96,29 @@ Being.prototype.moveToward = function() {
 	}
 }
 
-Being.prototype.resolveDeath = function() {
+BFRL.Being.prototype.resolveDeath = function() {
 	this._game.addLogMessage(this._name + " slain by " + this._lastDamagedBy._name);
 	this.doTurn = function(){}; // empty it out to make sure it doesn't do any last gasp stuff
 	this.dropLoot();
 	this._game.removePobj(this);
 }
 
-Being.prototype.doTurn = function() {
+BFRL.Being.prototype.doTurn = function() {
 	// stub
 }
 
-Being.prototype._pickWeapon = function(wpool) {
+BFRL.Being.prototype._pickWeapon = function(wpool) {
 	var weapon_choices = Object.keys(wpool);
 	var rnd_weapon = weapon_choices.random();
 	if (rnd_weapon == "WeaponArbitrary") {
 		var args = wpool[rnd_weapon];
-		this.weapon = new WeaponArbitrary(args[0],args[1],Game['DMGTYPE_' + args[2]],args[3]);
+		this.weapon = new BFRL.WeaponArbitrary(args[0],args[1], BFRL['DMGTYPE_' + args[2]],args[3]);
 	} else {
 		this.weapon = new BFRL.weaponManifest[rnd_weapon]();
 	}
 }
 
-Being.prototype.dropLoot = function() {
+BFRL.Being.prototype.dropLoot = function() {
 	if (this.loot && this.loot.type) {
 		var l = new this.loot.type(this._x,this._y,this.loot.modifier);
 		this._game.addLogMessage(this._name + " dropped a " + l._name);
@@ -127,7 +127,7 @@ Being.prototype.dropLoot = function() {
 	}
 }
 
-Being.prototype.doTurn = function() {
+BFRL.Being.prototype.doTurn = function() {
 	// check view object for player
 	this.updateFovPobjs();
 	for (var i = 0; i < this.fovPobjs.length; i++) {
@@ -147,7 +147,7 @@ Being.prototype.doTurn = function() {
 	}
 }
 
-Being.prototype.resolveBump = function(be) {
+BFRL.Being.prototype.resolveBump = function(be) {
 	// TODO generalize to be able to attack whatever is enemy/target
 	if (be == this.aggressionTarget) {
 		this.weapon.inflictDamage(be,this);
