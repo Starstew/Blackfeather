@@ -11,6 +11,10 @@ Just open the **index.html** in a browser and you're good to go. Use cursor keys
 The game is simple "bump to attack" right now. Killing monsters accrues experience, which will level you up, which gives you 
 more max hit-points and more attack power.
 
+Eating mushrooms adds max hit-points, and heals some hit-points.
+
+Goal of the game, currently, is to obtain the mysterious "Black Feather" from a powerful monster.
+
 ## Credit where it is due
 This game was built around ROT.js (https://github.com/ondras/rot.js) by Ondřej Žára.
 
