@@ -300,12 +300,16 @@ BFRL.game.prototype = {
 		},
 
 		refreshStatusDisplay: function() {
-			var newhtml = "<span class='player_name'>" + this.player._name + " [Lvl. "+this.player._xpLevel+"]</span>";
+			var newhtml = "<span class='player_name'>" + this.player._name + 
+			" <div class='levelxp'><div class='leveltext'>Lvl. "+this.player._xpLevel+"</div><div class='xpbar'></div></div></span>";
 			newhtml += "<span class='hitpoints'>[" + this.player._hitpoints + "/" + this.player._hitpointsMax + "]</span>";
 			newhtml += "<span class='weapon'>Wielding: " + this.player.weapon._name + "</span>";
 			newhtml += "<span class='gold'>" + this.player._gold + "GP</span>";
 			newhtml += "<span class='depth'>Depth: " + this.depth + "</span>";
 			document.querySelector('#status_display').innerHTML = newhtml;
+
+			//update xpbar
+			$('.levelxp .xpbar').css('width', this.player._nextLevelProgress+"%");
 		},
 
 		refreshFovDisplay: function() {
@@ -326,7 +330,7 @@ BFRL.game.prototype = {
 	}
 
 BFRL.Gui = {
-	showAlert: function(alertText,x,y,w,delay) {
+	showAlert: function(alertText,x,y,w,delay,autoContinue) {
 		BFRL.currentGame.engine.lock();
 		// draw block
 		x = x || 2;
@@ -342,7 +346,16 @@ BFRL.Gui = {
 		if (delay > 0) {
 			window.removeEventListener("keydown", BFRL.currentGame.player);
 		}
-		setTimeout(function(){window.addEventListener("keydown",BFRL.Gui);},delay);
+		if (autoContinue === true) {
+			setTimeout(function(){
+				window.addEventListener("keydown",BFRL.currentGame.player);
+				BFRL.currentGame.engine.unlock();
+			},delay);
+		} else {
+			setTimeout(function(){
+				window.addEventListener("keydown",BFRL.Gui);
+			},delay);
+		}
 	},
 	showGameOver: function(msg) {
 		BFRL.currentGame.engine.lock();

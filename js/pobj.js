@@ -99,7 +99,7 @@ BFRL.worldPobjs.Mushroom.prototype.onPickup = function(pickerUpper) {
 	pickerUpper._hitpointsMax += 1;
 	pickerUpper._hitpoints += this.power;
 	pickerUpper._hitpoints = Math.min(pickerUpper._hitpointsMax,pickerUpper._hitpoints);
-	this._game.addLogMessage(pickerUpper._name + " feels healthier after eating a " + this._name);
+	BFRL.Gui.showAlert("Yum! (+" + this.power +"HP)",pickerUpper.getX(),pickerUpper.getY(),30,750,true);
 	this._game.removePobj(this);
 }
 

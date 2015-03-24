@@ -7,7 +7,9 @@ BFRL.Player = function(x,y) {
 	this._name = "Wombat";
 	this._xp = 0;
 	this._xpLevel = 1;
+	this._prevLevelXp = 0;
 	this._nextLevelXp = 30;
+	this.updateXpProgress();
 	this._speed = 1;
 }
 BFRL.Player.extend(BFRL.Being);
@@ -123,14 +125,21 @@ BFRL.Player.prototype.resolveBump = function(pobj) {
 	if (pobj._hitpoints <= 0) { // killed!
 		// give "xp" for kill
 		this._xp += (pobj._difficulty*3);
+		this.updateXpProgress();
 		if (this._xp>=this._nextLevelXp) {
 			this._xpLevel += 1;
+			this._prevLevelXp = this._nextLevelXp;
 			this._nextLevelXp += Math.floor(this._xpLevel * 50);
-			BFRL.Gui.showAlert("You leveled up!\nWelcome to level " + this._xpLevel + ".",this.getX(),this.getY(),30,1000);
+			BFRL.Gui.showAlert("You leveled up to " + this._xpLevel + "!",this.getX(),this.getY(),30,1000);
 			this._hitpointsMax += this._xpLevel;
 			this._hitpoints = this._hitpointsMax;
+			this.updateXpProgress();
 		}
 	}
+}
+
+BFRL.Player.prototype.updateXpProgress = function() {
+	this._nextLevelProgress = Math.floor(1/(this._nextLevelXp - this._prevLevelXp) * (this._xp - this._prevLevelXp) * 100);
 }
 
 BFRL.Player.prototype.resolveColocation = function() {
