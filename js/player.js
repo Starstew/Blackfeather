@@ -33,7 +33,10 @@ BFRL.Player.prototype.definition = {
 
 BFRL.Player.prototype.act = function() {
 	if (this._hitpoints <= 0) {
-		this._game.showGameOver();
+		var msg = "You have been killed by " + this._lastDamagedBy._name + "'s " 
+			+ this._lastDamagedBy.weapon._name + "!\nDepth: "
+			+ this._game.depth+"\nGold: " + this._gold;
+		BFRL.Gui.showGameOver(msg);
 		return;
 	}
 
@@ -123,7 +126,6 @@ BFRL.Player.prototype.resolveBump = function(pobj) {
 		if (this._xp>=this._nextLevelXp) {
 			this._xpLevel += 1;
 			this._nextLevelXp += Math.floor(this._xpLevel * 50);
-			//this._game.addLogMessage("<span class='levelup'>LEVEL UP TO " + this._xpLevel + "</span>");
 			BFRL.Gui.showAlert("You leveled up!\nWelcome to level " + this._xpLevel + ".",this.getX(),this.getY(),30,1000);
 			this._hitpointsMax += this._xpLevel;
 			this._hitpoints = this._hitpointsMax;

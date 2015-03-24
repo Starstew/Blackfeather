@@ -79,9 +79,9 @@ BFRL.worldPobjs.BlackFeather = function(x,y,factor) {
 BFRL.worldPobjs.BlackFeather.extend(BFRL.Pobj);
 BFRL.worldPobjs.BlackFeather.prototype.onPickup = function(pickerUpper) {
 	if (pickerUpper == this._game.player) {
-		alert ("YOU FOUND THE BLACK FEATHER!\nIs it all you'd hoped for?\nAnyway, you did what you came here to do.\nTake your " + 
-			this._game.player._gold + " gold and get out of here.");
-		BFRL.startNewGame();
+		var msg = "YOU FOUND THE BLACK FEATHER!\nIs it all you'd hoped for?\nAnyway, you did what you came here to do.\nTake your " + 
+			this._game.player._gold + " gold and get out of here.";
+		BFRL.Gui.showGameOver(msg);
 		return;
 	}
 }

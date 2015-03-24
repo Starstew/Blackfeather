@@ -118,14 +118,7 @@ BFRL.game.prototype = {
 			this.engine = new ROT.Engine(this._scheduler);
 			this.engine.start();
 		},
-		showGameOver: function() {
-			var p = this.player;
-			this.engine.lock();
-			alert("You have been killed by " + p._lastDamagedBy._name + "'s " + p._lastDamagedBy.weapon._name + "!\nDepth: "
-				+this.depth+"\nGold: "+p._gold);
-			BFRL.startNewGame();
-			return;
-		},
+
 
 		_generateMap: function() {
 			this.map = new BFRL.Map();
@@ -340,6 +333,10 @@ BFRL.Gui = {
 		y = y || 2;
 		w = w || 24;
 		delay = delay || 0;
+		var dispops = BFRL.display.getOptions();
+		var xmax = dispops.width;
+		var ymax = dispops.height;
+		x = (xmax-x < w) ? xmax-w : x;
 		BFRL.display.drawText(x,y,alertText,24);
 
 		if (delay > 0) {
@@ -347,10 +344,22 @@ BFRL.Gui = {
 		}
 		setTimeout(function(){window.addEventListener("keydown",BFRL.Gui);},delay);
 	},
+	showGameOver: function(msg) {
+		BFRL.currentGame.engine.lock();
+		BFRL.display.clear();
+		this.showAlert(msg,5,5,50,3000);
+		this.isWaitingToRestart = true;
+		return;
+	},
 
 	handleEvent: function(e) {
 		BFRL.currentGame.engine.unlock();
+		if (this.isWaitingToRestart) {
+			this.isWaitingToRestart = false;
+			BFRL.startNewGame();
+		} else {
+			window.addEventListener("keydown",BFRL.currentGame.player);
+		}
 		window.removeEventListener("keydown", this);
-		window.addEventListener("keydown",BFRL.currentGame.player);
 	}
 }
