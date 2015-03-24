@@ -8,6 +8,7 @@ BFRL.Player = function(x,y) {
 	this._xp = 0;
 	this._xpLevel = 1;
 	this._nextLevelXp = 30;
+	this._speed = 1;
 }
 BFRL.Player.extend(BFRL.Being);
 
@@ -51,31 +52,31 @@ BFRL.Player.prototype.act = function() {
 }
 
 BFRL.Player.prototype.handleEvent = function(e) {
-   	var keyMap = {};
-    keyMap[38] = 0;
-    keyMap[33] = 1;
-    keyMap[39] = 2;
-    keyMap[34] = 3;
-    keyMap[40] = 4;
-    keyMap[35] = 5;
-    keyMap[37] = 6;
-    keyMap[36] = 7;
- 
-    var code = e.keyCode;
+	var keyMap = {};
+	keyMap[38] = 0;
+	keyMap[33] = 1;
+	keyMap[39] = 2;
+	keyMap[34] = 3;
+	keyMap[40] = 4;
+	keyMap[35] = 5;
+	keyMap[37] = 6;
+	keyMap[36] = 7;
 
-    if (code == 32) { // spacebar
-    	this.doRest();
-    } else {
-	    if (!(code in keyMap)) { return; }
+	var code = e.keyCode;
 
-	    var diff = ROT.DIRS[8][keyMap[code]];
-	    var newX = this._x + diff[0];
-	    var newY = this._y + diff[1];
-	 
-	    var newKey = newX + "," + newY;
+	if (code == 32) { // spacebar
+		this.doRest();
+	} else {
+		if (!(code in keyMap)) { return; }
 
-	    // is it a map space
-	    var moveResult = this._game.getMoveResult(this,newX,newY);
+		var diff = ROT.DIRS[8][keyMap[code]];
+		var newX = this._x + diff[0];
+		var newY = this._y + diff[1];
+
+		var newKey = newX + "," + newY;
+
+		// is it a map space
+		var moveResult = this._game.getMoveResult(this,newX,newY);
 		if (moveResult.isOpen != true) {
 			if (moveResult.bumpedEntity != null) {
 				this.resolveBump(moveResult.bumpedEntity);
@@ -87,8 +88,8 @@ BFRL.Player.prototype.handleEvent = function(e) {
 			this.resolveColocation();
 		}
 	}
-    window.removeEventListener("keydown", this);
-    this._game.engine.unlock();
+	window.removeEventListener("keydown", this);
+	this._game.engine.unlock();
 };
 
 BFRL.Player.prototype.drawFov = function() {
@@ -122,7 +123,8 @@ BFRL.Player.prototype.resolveBump = function(pobj) {
 		if (this._xp>=this._nextLevelXp) {
 			this._xpLevel += 1;
 			this._nextLevelXp += Math.floor(this._xpLevel * 50);
-			this._game.addLogMessage("<span class='levelup'>LEVEL UP TO " + this._xpLevel + "</span>");
+			//this._game.addLogMessage("<span class='levelup'>LEVEL UP TO " + this._xpLevel + "</span>");
+			BFRL.Gui.showAlert("You leveled up!\nWelcome to level " + this._xpLevel + ".",this.getX(),this.getY(),30,1000);
 			this._hitpointsMax += this._xpLevel;
 			this._hitpoints = this._hitpointsMax;
 		}

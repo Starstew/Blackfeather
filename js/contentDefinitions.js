@@ -44,24 +44,22 @@
 			"img": "gu.jpg"
 		},
 
-		"Kobold" : {
-			"glyph":"k",
+		"Wineboy" : {
+			"glyph":"w",
 			"glyphColor":"#330",
-			"species":"Kobold",
+			"species":"Wineboy",
 			"hitpointsRange":[4,13],
 			"difficulty":2,
 			"fovFactor":1.2,
 			"weaponPool": {
-				"Sword": 3,
-				"Club": 2,
-				"Dagger":1
+				"WeaponArbitrary" : [4,32,'COLD','Douse of his Bladder']
 			},
 			"lootPool": {
 				"GoldPile": 10,
 				"GoldPile": 20,
 				"GoldPile": 2,
 			},
-			"img": "kobold.jpg"
+			"img": "wineboy.jpg"
 		},
 
 		"Orq" : {
@@ -142,6 +140,7 @@
 			"glyph":"g",
 			"glyphColor":"#050",
 			"species":"Goblin",
+			"speed":1.5,
 			"hitpointsRange":[5,30],
 			"difficulty":4,
 			"fovFactor":2,
@@ -179,11 +178,12 @@
 
 		"Shrub" : {
 			"glyph":"s",
-			"glyphColor":"#484",
+			"glyphColor":"#252",
 			"species":"Shrub",
 			"hitpointsRange":[20,40],
 			"difficulty":12,
 			"fovFactor":2,
+			"speed":0.5,
 			"weaponPool": {
 				"WeaponArbitrary" : [12,24,'SLASH','Projectile Nuts'],
 				"WeaponArbitrary" : [10,25,'BLUNT','Buggery Root']
@@ -204,6 +204,7 @@
 			"hitpointsRange":[30,60],
 			"difficulty":20,
 			"fovFactor":3,
+			"speed":1.25,
 			"weaponPool": {
 				"WeaponArbitrary" : [12,24,'SLASH','Axe'],
 				"WeaponArbitrary" : [10,25,'PIERCE','Horny Gore']

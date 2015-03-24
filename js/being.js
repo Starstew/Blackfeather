@@ -19,6 +19,7 @@ BFRL.Being = function(x,y) {
 	this._glyph = def.glyph;
 	this._glyphColor = def.glyphColor;
 	this._pickWeapon(def.weaponPool);
+	this._speed = def.speed || 1;
 	this.fovRange = def.fovFactor * BFRL.settings.fovBase;
 
 	var loot_choices = Object.keys(def.lootPool);
@@ -30,6 +31,9 @@ BFRL.Being = function(x,y) {
 };
 
 BFRL.Being.extend(BFRL.Pobj);
+BFRL.Being.prototype.getSpeed = function() {
+	return this._speed;
+}
 
 BFRL.Being.prototype.scanFov = function() {
 	this.fovMapCells = [];
@@ -122,8 +126,6 @@ BFRL.Being.prototype.dropLoot = function() {
 	if (this.loot && this.loot.type) {
 		var l = new this.loot.type(this._x,this._y,this.loot.modifier);
 		this._game.addLogMessage(this._name + " dropped a " + l._name);
-		l.isLoot = true;
-		l._isPassable = true;
 	}
 }
 

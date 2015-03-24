@@ -57,6 +57,7 @@ var BFRL = BFRL || {
 	startNewGame : function() {
 		this.currentGame = new this.game();
 		this.currentGame.start();
+		BFRL.Gui.showAlert("There's something alive down here...");
 	},
 
 	parseMonsterManual: function() {
@@ -108,7 +109,7 @@ var BFRL = BFRL || {
 
 BFRL.game.prototype = {
 		start: function() {
-			this._scheduler = new ROT.Scheduler.Simple();
+			this._scheduler = new ROT.Scheduler.Speed();
 
 			// go to first map
 			this.depth = 0;
@@ -163,7 +164,7 @@ BFRL.game.prototype = {
 			
 			// populate with items
 			// populate with npcs
-			this.populateMonsters(this.depth * 8);//var difficulty_quota = this.depth * 5;
+			this.populateMonsters((this.depth * 8) + 20);
 
 			// start it back up
 			if (this.engine) {
@@ -173,13 +174,14 @@ BFRL.game.prototype = {
 
 		populateMonsters: function(difficulty_quota) {
 			var maxTries = 1000;
+			var halfquota = Math.floor(difficulty_quota*0.5);
 			// keep adding monsters until quota is exceeded (or we reach 1000 tries)
 			var diffcount = 0;
 			for (var i = 0; i < maxTries; i++) {
 				var mt = BFRL.npcTypes.random();
 				var remaining = difficulty_quota - diffcount;
 				var mt_diff = mt.prototype.definition.difficulty;
-				if (mt_diff > (remaining*1.5)) {
+				if (mt_diff > (remaining*1.5) || mt.prototype.definition.difficulty > halfquota) {
 					continue;
 				}
 				var mon = this.spawnAndPlaceBeing(mt,this.map.freeCells);
@@ -329,3 +331,26 @@ BFRL.game.prototype = {
 			$('#fov_display .fov_item').css('width',imgwidth+'px');
 		}
 	}
+
+BFRL.Gui = {
+	showAlert: function(alertText,x,y,w,delay) {
+		BFRL.currentGame.engine.lock();
+		// draw block
+		x = x || 2;
+		y = y || 2;
+		w = w || 24;
+		delay = delay || 0;
+		BFRL.display.drawText(x,y,alertText,24);
+
+		if (delay > 0) {
+			window.removeEventListener("keydown", BFRL.currentGame.player);
+		}
+		setTimeout(function(){window.addEventListener("keydown",BFRL.Gui);},delay);
+	},
+
+	handleEvent: function(e) {
+		BFRL.currentGame.engine.unlock();
+		window.removeEventListener("keydown", this);
+		window.addEventListener("keydown",BFRL.currentGame.player);
+	}
+}
