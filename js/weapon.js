@@ -17,9 +17,7 @@ BFRL.Weapon.prototype.inflictDamage = function(targetPobj, wielder) {
 	if (wielder._xpLevel) {
 		dmg += wielder._xpLevel * 2;
 	}
-	if (targetPobj.receiveDamage) {
-		targetPobj.receiveDamage(dmg,this.damageType,wielder);
-	}
+	return dmg; 
 }
 
 /* Arbitrary - to be used for monsters' natural weaponry (claws, pokers, thwippy tentacles) */

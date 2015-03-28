@@ -28,9 +28,26 @@ BFRL.Being = function(x,y) {
 	this.loot = {type:BFRL.worldPobjs[loot_key], modifier:loot_mod};
 
 	this.aggressionTarget = this._game.player; // temp for expediency, TODO:dynamic targets
+	
+	// config traits
+	this.traits = {};
+	if (def.traits) {
+		for (var t in def.traits) {
+			if (BFRL.BeingTraits[t]) {
+				this.traits[t] = def.traits[t];
+				if (BFRL.BeingTraits[t].config) {
+					BFRL.BeingTraits[t].config(this,def.traits[t]);
+				}
+			}
+		}
+	}
+
+	// subscribe to events
+	window.subscribe('dmg_'+this.objectId, this);
 };
 
 BFRL.Being.extend(BFRL.Pobj);
+
 BFRL.Being.prototype.getSpeed = function() {
 	return this._speed;
 }
@@ -65,11 +82,24 @@ BFRL.Being.prototype.updateFovPobjs = function() {
 	}
 }
 
+BFRL.Being.prototype.handleMessage = function(message, publisher, data) {
+	var msgtype = message.split("_")[0];
+	switch(msgtype) {
+		case "dmg":
+			this.receiveDamage(data['dmg'],data['dmgType'],publisher);
+			break;
+	}
+};
+
 BFRL.Being.prototype.receiveDamage = function(dmg, dmgType, dmgInflictor) {
 	// for now, just take damage (nuances, resistances, etc TODO)
 	this._hitpoints -= dmg;
 	this._lastDamagedBy = dmgInflictor;
 	this._game.addLogMessage(this._name + " takes " + dmg + " damage from " + dmgInflictor._name + "'s " + dmgInflictor.weapon._name);
+}
+
+BFRL.Being.prototype.gainHitpoints = function(hpgain) {
+	this._hitpoints = Math.min(this._hitpoints + hpgain, this._hitpointsMax);
 }
 
 BFRL.Being.prototype.act = function() {
@@ -107,10 +137,6 @@ BFRL.Being.prototype.resolveDeath = function() {
 	this._game.removePobj(this);
 }
 
-BFRL.Being.prototype.doTurn = function() {
-	// stub
-}
-
 BFRL.Being.prototype._pickWeapon = function(wpool) {
 	var weapon_choices = Object.keys(wpool);
 	var rnd_weapon = weapon_choices.random();
@@ -130,7 +156,7 @@ BFRL.Being.prototype.dropLoot = function() {
 }
 
 BFRL.Being.prototype.doTurn = function() {
-	// check view object for player
+	// check view object for "aggressionTarget"
 	this.updateFovPobjs();
 	for (var i = 0; i < this.fovPobjs.length; i++) {
 		var fovobj = this.fovPobjs[i];
@@ -152,6 +178,8 @@ BFRL.Being.prototype.doTurn = function() {
 BFRL.Being.prototype.resolveBump = function(be) {
 	// TODO generalize to be able to attack whatever is enemy/target
 	if (be == this.aggressionTarget) {
-		this.weapon.inflictDamage(be,this);
+		var dmg = this.weapon.inflictDamage(be,this);
+		window.publish("atk_" + this.objectId, this, {'dmg':dmg}); // pubsub event for an attack taking place
+		window.publish("dmg_" + be.objectId, this, {'dmg':dmg, 'dmgType':this.weapon.damageType}); // pubsub for damage being done
 	}
 }

@@ -154,6 +154,12 @@
 				"GoldPile": 5,
 				"Mushroom": 5
 			},
+			"traits": {
+				"ATK_DRAINLIFE" : {
+					"chance": 30,
+					"damageRange": [2,8]
+				}
+			},
 			"img": "goblin.jpg"
 		},
 

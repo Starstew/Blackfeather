@@ -126,8 +126,16 @@ BFRL.game.prototype = {
 		},
 
 		delveDeeper: function() {
+			
 			if (this.engine) {
 				this.engine.lock();
+			}
+			if (this.map) {
+				for (var i in this.map.pobjList) {
+					if (this.map.pobjList[i] != this.player && this.map.pobjList[i].objectId) {
+						this.removePobj(this.map.pobjList[i]);
+					}
+				}
 			}
 			this._scheduler.clear();
 			this.seenMapCells = [];
@@ -149,8 +157,8 @@ BFRL.game.prototype = {
 			 	var x = parseInt(parts[0]);
 			 	var y = parseInt(parts[1]);
 				this.player.relocate(x,y);
+				this.player.addToPobjList();
 			}
-			this.player.addToPobjList();
 			var relo = [parseInt(this.map.entrance._x),parseInt(this.map.entrance._y)];
 			this.player.relocate(relo[0],relo[1]);
 			this._scheduler.add(this.player, true);
@@ -221,8 +229,13 @@ BFRL.game.prototype = {
 		 	return new what(x,y);
 		},
 
-		/* remove object from map and scheduler */
+		/* remove object from map, scheduler, and pubsub */
 		removePobj: function(pobj) {
+			if (pobj.cleanupBeforeRemove) {
+				pobj.cleanupBeforeRemove();
+			} else {
+				window.removeSubscriber(pobj);
+			}
 			if (this._scheduler) {
 				this._scheduler.remove(pobj);
 			}
@@ -376,3 +389,44 @@ BFRL.Gui = {
 		window.removeEventListener("keydown", this);
 	}
 }
+
+
+/***
+* Add ons
+*/
+
+// pub-sub
+;(function() {
+	var _subscribers = {};
+	
+	window.publish = function(message, publisher, data) {
+		var subscribers = _subscribers[message] || [];
+		subscribers.forEach(function(subscriber) {
+			subscriber.handleMessage(message, publisher, data);
+		});
+	}
+	
+	window.subscribe = function(message, subscriber) {
+		if (!(message in _subscribers)) {
+			_subscribers[message] = [];
+		}
+		_subscribers[message].push(subscriber);
+	},
+	
+	window.unsubscribe = function(message, subscriber) {
+		var index = _subscribers[message].indexOf(subscriber);
+		_subscribers[message].splice(index, 1);
+	},
+
+	window.removeSubscriber = function(subscriber) {
+		for (var msg in _subscribers) {
+			for (var s in _subscribers[msg]) {
+				var sub = _subscribers[msg][s];
+				if (sub == subscriber) {
+					window.unsubscribe(msg,sub);
+				}
+			}
+		}
+	}
+})();
+

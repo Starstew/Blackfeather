@@ -119,7 +119,9 @@ BFRL.Player.prototype.drawFov = function() {
 
 BFRL.Player.prototype.resolveBump = function(pobj) {
 	// attack everything (TODO: non-violent tactics)
-	this.weapon.inflictDamage(pobj,this);
+	var dmg = this.weapon.inflictDamage(pobj,this);
+	window.publish("atk_" + this.objectId, this, {'dmg':dmg}); // pubsub event for an attack taking place
+	window.publish("dmg_" + pobj.objectId, this, {'dmg':dmg, 'dmgType':this.weapon.damageType}); // pubsub for damage being done
 
 	// check for kill
 	if (pobj._hitpoints <= 0) { // killed!

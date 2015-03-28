@@ -38,8 +38,26 @@ BFRL.Pobj.prototype = {
 	addToPobjList : function() {
 		this._game.map.pobjList.push(this);
 		this.objectId = 'pobj_' + this._game.map.pobjCounter++;
+	},
+
+	addTrait: function(traitName, traitConfig) {
+		this.traits = this.traits || {};
+		this.traits[traitName] = traitConfig;
+	},
+
+	cleanupBeforeRemove: function() {
+		if (this.traits) {
+			for (var t in this.traits) {
+				window.removeSubscriber(this.traits[t]);
+			}
+		}
+		window.removeSubscriber(this);
 	}
 }
+
+/***
+* Specific objects
+*/
 
 /* Egress */
 BFRL.worldPobjs.Egress = function(x,y,et) {
@@ -97,9 +115,8 @@ BFRL.worldPobjs.Mushroom = function(x,y,factor) {
 BFRL.worldPobjs.Mushroom.extend(BFRL.Pobj);
 BFRL.worldPobjs.Mushroom.prototype.onPickup = function(pickerUpper) {
 	pickerUpper._hitpointsMax += 1;
-	pickerUpper._hitpoints += this.power;
-	pickerUpper._hitpoints = Math.min(pickerUpper._hitpointsMax,pickerUpper._hitpoints);
-	BFRL.Gui.showAlert("Yum! (+" + this.power +"HP)",pickerUpper.getX(),pickerUpper.getY(),30,750,true);
+	pickerUpper.gainHitpoints(this.power);
+	this._game.addLogMessage("Ate a yummy mushroom.");
 	this._game.removePobj(this);
 }
 
