@@ -5,6 +5,7 @@ BFRL.Pobj = function(x,y) {
 	this._x = x;
 	this._y = y;
 	this._game = BFRL.currentGame;
+
 	if (this.addToPobjList) {
 		this.addToPobjList();
 	}
@@ -46,12 +47,12 @@ BFRL.Pobj.prototype = {
 	},
 
 	cleanupBeforeRemove: function() {
+		// traits might be subscribing, clean them out
 		if (this.traits) {
 			for (var t in this.traits) {
 				window.removeSubscriber(this.traits[t]);
 			}
 		}
-		window.removeSubscriber(this);
 	}
 }
 
@@ -83,7 +84,7 @@ BFRL.worldPobjs.GoldPile.extend(BFRL.Pobj);
 BFRL.worldPobjs.GoldPile.prototype.onPickup = function(pickerUpper) {
 	pickerUpper._gold = Math.max(0,pickerUpper._gold);
 	pickerUpper._gold += this.amount;
-	this._game.addLogMessage("Picked up " + this.amount + " gold");
+	window.publish("log_message",this,"Picked up " + this.amount + " gold");
 	this._game.removePobj(this);
 }
 
@@ -115,8 +116,7 @@ BFRL.worldPobjs.Mushroom = function(x,y,factor) {
 BFRL.worldPobjs.Mushroom.extend(BFRL.Pobj);
 BFRL.worldPobjs.Mushroom.prototype.onPickup = function(pickerUpper) {
 	pickerUpper._hitpointsMax += 1;
-	pickerUpper.gainHitpoints(this.power);
-	this._game.addLogMessage("Ate a yummy mushroom.");
+	pickerUpper.gainHitpoints(this.power,"by eating a yummy mushroom");
 	this._game.removePobj(this);
 }
 
@@ -129,6 +129,6 @@ BFRL.worldPobjs.Tooth = function(x,y,factor) {
 }
 BFRL.worldPobjs.Tooth.extend(BFRL.Pobj);
 BFRL.worldPobjs.Tooth.prototype.onPickup = function(pickerUpper) {
-	this._game.addLogMessage(pickerUpper._name + " found a tooth.");
+	window.publish("log_message",this, pickerUpper._name + " found a tooth.");
 	this._game.removePobj(this);
 }

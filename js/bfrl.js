@@ -54,10 +54,20 @@ var BFRL = BFRL || {
 		this.startNewGame();
 	},
 
+	handleMessage: function(message, publisher, data) {
+		switch(message) {
+			case "log_message":
+				this.currentGame.addLogMessage(data);
+				break;
+			default:
+				break;
+		}
+	},
+
 	startNewGame : function() {
 		this.currentGame = new this.game();
 		this.currentGame.start();
-		BFRL.Gui.showAlert("There's something alive down here...");
+		BFRL.Gui.showAlert("So begins your quest for the Black Feather...");
 	},
 
 	parseMonsterManual: function() {
@@ -94,6 +104,7 @@ var BFRL = BFRL || {
 
 	game : function() {
 		// blank all state vars
+		window.clearSubscribers();
 		this.fovMapCells = [];
 		this.seenMapCells = [];
 		this._log = [];
@@ -126,17 +137,11 @@ BFRL.game.prototype = {
 		},
 
 		delveDeeper: function() {
-			
+			window.clearSubscribers();
 			if (this.engine) {
 				this.engine.lock();
 			}
-			if (this.map) {
-				for (var i in this.map.pobjList) {
-					if (this.map.pobjList[i] != this.player && this.map.pobjList[i].objectId) {
-						this.removePobj(this.map.pobjList[i]);
-					}
-				}
-			}
+
 			this._scheduler.clear();
 			this.seenMapCells = [];
 			this.fovMapCells = [];
@@ -151,6 +156,7 @@ BFRL.game.prototype = {
 			if (!this.player) {
 				this.player = this.spawnAndPlaceBeing(BFRL.Player, this.map.freeCells);
 			} else {
+				this.player.subscribeToMessages();
 				var index = Math.floor(ROT.RNG.getUniform() * this.map.freeCells.length);
 			 	var key = this.map.freeCells.splice(index, 1)[0];
 			 	var parts = key.split(",");
@@ -164,8 +170,13 @@ BFRL.game.prototype = {
 			this._scheduler.add(this.player, true);
 			
 			// populate with items
+			// TODO
+
 			// populate with npcs
 			this.populateMonsters((this.depth * 8) + 20);
+
+			// attach subscribers
+			window.subscribe('log_message',BFRL);
 
 			// start it back up
 			if (this.engine) {
@@ -231,19 +242,29 @@ BFRL.game.prototype = {
 
 		/* remove object from map, scheduler, and pubsub */
 		removePobj: function(pobj) {
+			if (!pobj) { return; }
+			// remove from subscriptions
 			if (pobj.cleanupBeforeRemove) {
 				pobj.cleanupBeforeRemove();
-			} else {
-				window.removeSubscriber(pobj);
 			}
+			window.removeSubscriber(pobj);
+
+			// remove from scheduling
 			if (this._scheduler) {
 				this._scheduler.remove(pobj);
 			}
+
+			// filter from list of objects
 			for (var i in this.map.pobjList) {
 				if (this.map.pobjList[i] == pobj) {
 					this.map.pobjList.splice(i,1);
+					break;
 				}
 			}
+
+			
+			
+			// update the map
 			this.map.updateObjectMap();
 		},
 
@@ -419,14 +440,18 @@ BFRL.Gui = {
 	},
 
 	window.removeSubscriber = function(subscriber) {
-		for (var msg in _subscribers) {
-			for (var s in _subscribers[msg]) {
-				var sub = _subscribers[msg][s];
+		var tempsubs = jQuery.extend(true, {}, _subscribers);
+		for (var msg in tempsubs) {
+			var len = tempsubs[msg].length;
+			for (var s = 0; s < len; s++) {
+				var sub = tempsubs[msg][s];
 				if (sub == subscriber) {
 					window.unsubscribe(msg,sub);
 				}
 			}
 		}
-	}
+	},
+	window.clearSubscribers = function() { _subscribers = {}; },
+	window.showSubscribers = function() { console.log(_subscribers); }
 })();
 

@@ -33,20 +33,23 @@ BFRL.Being = function(x,y) {
 	this.traits = {};
 	if (def.traits) {
 		for (var t in def.traits) {
-			if (BFRL.BeingTraits[t]) {
+			if (BFRL.Traits[t]) {
 				this.traits[t] = def.traits[t];
-				if (BFRL.BeingTraits[t].config) {
-					BFRL.BeingTraits[t].config(this,def.traits[t]);
+				if (BFRL.Traits[t].config) {
+					BFRL.Traits[t].config(this,def.traits[t]);
 				}
 			}
 		}
 	}
 
-	// subscribe to events
-	window.subscribe('dmg_'+this.objectId, this);
+	this.subscribeToMessages();
 };
 
 BFRL.Being.extend(BFRL.Pobj);
+
+BFRL.Being.prototype.subscribeToMessages = function() {
+	window.subscribe('dmg_'+this.objectId, this);
+}
 
 BFRL.Being.prototype.getSpeed = function() {
 	return this._speed;
@@ -95,11 +98,13 @@ BFRL.Being.prototype.receiveDamage = function(dmg, dmgType, dmgInflictor) {
 	// for now, just take damage (nuances, resistances, etc TODO)
 	this._hitpoints -= dmg;
 	this._lastDamagedBy = dmgInflictor;
-	this._game.addLogMessage(this._name + " takes " + dmg + " damage from " + dmgInflictor._name + "'s " + dmgInflictor.weapon._name);
+	window.publish('log_message',this,this._name + " takes " + dmg + " damage from " + dmgInflictor._name + "'s " + dmgInflictor.weapon._name);
 }
 
-BFRL.Being.prototype.gainHitpoints = function(hpgain) {
-	this._hitpoints = Math.min(this._hitpoints + hpgain, this._hitpointsMax);
+BFRL.Being.prototype.gainHitpoints = function(hpgain,msg) {
+	var true_gain = Math.min(hpgain,this._hitpointsMax - this._hitpoints);
+	this._hitpoints += true_gain;
+	window.publish('log_message', this, this._name + " gains " + true_gain + " life " + (msg || ""));
 }
 
 BFRL.Being.prototype.act = function() {
@@ -131,7 +136,7 @@ BFRL.Being.prototype.moveToward = function() {
 }
 
 BFRL.Being.prototype.resolveDeath = function() {
-	this._game.addLogMessage(this._name + " slain by " + this._lastDamagedBy._name);
+	window.publish('log_message',this,this._name + " slain by " + this._lastDamagedBy._name);
 	this.doTurn = function(){}; // empty it out to make sure it doesn't do any last gasp stuff
 	this.dropLoot();
 	this._game.removePobj(this);
@@ -151,7 +156,7 @@ BFRL.Being.prototype._pickWeapon = function(wpool) {
 BFRL.Being.prototype.dropLoot = function() {
 	if (this.loot && this.loot.type) {
 		var l = new this.loot.type(this._x,this._y,this.loot.modifier);
-		this._game.addLogMessage(this._name + " dropped a " + l._name);
+		window.publish('log_message',this,this._name + " dropped a " + l._name)
 	}
 }
 
@@ -179,7 +184,7 @@ BFRL.Being.prototype.resolveBump = function(be) {
 	// TODO generalize to be able to attack whatever is enemy/target
 	if (be == this.aggressionTarget) {
 		var dmg = this.weapon.inflictDamage(be,this);
-		window.publish("atk_" + this.objectId, this, {'dmg':dmg}); // pubsub event for an attack taking place
+		window.publish("atk_" + this.objectId, this, {'dmg':dmg,'wielder':this}); // pubsub event for an attack taking place
 		window.publish("dmg_" + be.objectId, this, {'dmg':dmg, 'dmgType':this.weapon.damageType}); // pubsub for damage being done
 	}
 }

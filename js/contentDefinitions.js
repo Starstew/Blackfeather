@@ -5,8 +5,7 @@
 			"label":"Sword",
 			"damageType":"SLASH",
 			"damageRange":[6,12],
-			"glyph":"/",
-			"label":"Sword"		
+			"glyph":"/"		
 		},
 		"Dagger": {
 			"label":"Dagger",
@@ -19,6 +18,15 @@
 			"damageType":"BLUNT",
 			"damageRange":[1,6],
 			"glyph":"!"
+		},
+		"VorpalBlade": {
+			"label":"Vorpal Blade",
+			"damageType":"SLASH",
+			"damageRange":[2,12],
+			"traits": {
+				"ATK_DRAINLIFE": {}
+			},
+			"glyph":"/"
 		}
 	}
 
@@ -52,7 +60,7 @@
 			"difficulty":2,
 			"fovFactor":1.2,
 			"weaponPool": {
-				"WeaponArbitrary" : [4,32,'COLD','Douse of his Bladder']
+				"WeaponArbitrary" : [4,32,'COLD','Bladder Splash']
 			},
 			"lootPool": {
 				"GoldPile": 10,
@@ -72,7 +80,8 @@
 			"weaponPool": {
 				"Sword": 3,
 				"Club": 2,
-				"Dagger":1
+				"Dagger":1,
+				"VorpalBlade": 1
 			},
 			"lootPool": {
 				"GoldPile": 20,
@@ -153,12 +162,6 @@
 				"GoldPile": 20,
 				"GoldPile": 5,
 				"Mushroom": 5
-			},
-			"traits": {
-				"ATK_DRAINLIFE" : {
-					"chance": 30,
-					"damageRange": [2,8]
-				}
 			},
 			"img": "goblin.jpg"
 		},

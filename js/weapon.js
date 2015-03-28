@@ -1,10 +1,21 @@
 /* Weapon */
 BFRL.Weapon = function(x,y) {
-	if (x && y) { // do pobj constructor only if placing
-		BFRL.Pobj.call(this,x,y);
-	}
+	BFRL.Pobj.call(this,x,y);
 
 	var def = this.definition;
+	// config traits
+	this.traits = {};
+	if (def.traits) {
+		for (var t in def.traits) {
+			if (BFRL.Traits[t]) {
+				this.traits[t] = def.traits[t];
+				if (BFRL.Traits[t].config) {
+					BFRL.Traits[t].config(this,def.traits[t]);
+				}
+			}
+		}
+	}
+
 	this.damageType = def.damageType;
 	this.damageRange = def.damageRange;
 	this._glyph = def.glyph;
@@ -17,6 +28,7 @@ BFRL.Weapon.prototype.inflictDamage = function(targetPobj, wielder) {
 	if (wielder._xpLevel) {
 		dmg += wielder._xpLevel * 2;
 	}
+	window.publish("atk_" + this.objectId, this, {'dmg':dmg,'wielder':wielder});
 	return dmg; 
 }
 

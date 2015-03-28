@@ -120,7 +120,7 @@ BFRL.Player.prototype.drawFov = function() {
 BFRL.Player.prototype.resolveBump = function(pobj) {
 	// attack everything (TODO: non-violent tactics)
 	var dmg = this.weapon.inflictDamage(pobj,this);
-	window.publish("atk_" + this.objectId, this, {'dmg':dmg}); // pubsub event for an attack taking place
+	window.publish("atk_" + this.objectId, this, {'dmg':dmg,'wielder':this}); // pubsub event for an attack taking place
 	window.publish("dmg_" + pobj.objectId, this, {'dmg':dmg, 'dmgType':this.weapon.damageType}); // pubsub for damage being done
 
 	// check for kill
@@ -132,7 +132,7 @@ BFRL.Player.prototype.resolveBump = function(pobj) {
 			this._xpLevel += 1;
 			this._prevLevelXp = this._nextLevelXp;
 			this._nextLevelXp += Math.floor(this._xpLevel * 50);
-			BFRL.Gui.showAlert("You leveled up to " + this._xpLevel + "!",this.getX(),this.getY(),30,1000);
+			window.publish('log_message',this,"<span class='levelup'>Reached level " + this._xpLevel + "!</span>");
 			this._hitpointsMax += this._xpLevel;
 			this._hitpoints = this._hitpointsMax;
 			this.updateXpProgress();
