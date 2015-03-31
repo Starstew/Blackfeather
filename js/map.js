@@ -14,7 +14,7 @@
 
 	BFRL.Map.prototype = {
 		_generateCells : function() {
-			var digger = new ROT.Map.Digger();
+			var digger = new ROT.Map.Uniform();
 			digger.create(this._digCallback.bind(this));
 		},
 
@@ -63,15 +63,9 @@
 				var po = this.pobjList[i];
 				if (po._x == x && po._y == y && po != exclude_po) {
 					pobjs.push(po);
-
 				}
 			}
 			return pobjs;
-		},
-
-		getDistance: function(fx,fy,tx,ty) {
-			var distance = this.getPath(fx,fy,tx,ty).length;
-			return distance;
 		},
 
 		getPath: function(fx,fy,tx,ty,topo) {
