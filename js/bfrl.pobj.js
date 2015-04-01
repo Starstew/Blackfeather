@@ -4,7 +4,7 @@
 BFRL.Pobj = function(x,y) {
 	this._x = x;
 	this._y = y;
-	this._game = BFRL.currentGame;
+	this._game = BFRL.curGame;
 
 	if (this.addToPobjList) {
 		this.addToPobjList();
@@ -100,7 +100,7 @@ BFRL.worldPobjs.BlackFeather.prototype.onPickup = function(pickerUpper) {
 	if (pickerUpper == this._game.player) {
 		var msg = "YOU FOUND THE BLACK FEATHER!\nIs it all you'd hoped for?\nAnyway, you did what you came here to do.\nTake your " + 
 			this._game.player._gold + " gold and get out of here.";
-		BFRL.Gui.showGameOver(msg);
+		BFRL.gui.showGameOver(msg);
 		return;
 	}
 }

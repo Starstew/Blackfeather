@@ -38,7 +38,7 @@ BFRL.Player.prototype.act = function() {
 		var msg = "You have been killed by " + this._lastDamagedBy._name + "'s " 
 			+ this._lastDamagedBy.weapon._name + "!\nDepth: "
 			+ this._game.depth+"\nGold: " + this._gold;
-		BFRL.Gui.showGameOver(msg);
+		BFRL.gui.showGameOver(msg);
 		return;
 	}
 
@@ -49,7 +49,7 @@ BFRL.Player.prototype.act = function() {
 	this._draw();
 
 	// update the UI
-	this._game.refreshUi();
+	BFRL.gui.refreshUi();
 
 	// stop the engine and wait for next input
 	this._game.engine.lock();

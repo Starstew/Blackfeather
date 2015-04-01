@@ -83,7 +83,7 @@
 
 			var passableCallback = function(x,y) {
 				var xy_key = x+","+y;
-				var map = BFRL.currentGame.map;
+				var map = BFRL.curGame.map;
 				var canPass = (xy_key in map.cells); // is an actual map location
 				
 				if (canPass == true && map.pobjCells && map.pobjCells[xy_key]) { // can pass over all objects in that space
@@ -123,8 +123,8 @@
 			this.fovMapCells = [];
 			var lightPasses = function(x, y) {
 				var key = x+","+y;
-				if (key in BFRL.currentGame.map.cells) { // is part of the map
-					return (BFRL.currentGame.map.cells[key].length > 0);
+				if (key in BFRL.curGame.map.cells) { // is part of the map
+					return (BFRL.curGame.map.cells[key].length > 0);
 				}
 				return false;
 			}
@@ -132,7 +132,7 @@
 			var fov_cells = {};
 			fov.compute(fxy[0], fxy[1], range, function(x, y, r, visibility) {
 				var key = x+","+y;
-				fov_cells[key] = BFRL.currentGame.map.cells[key];
+				fov_cells[key] = BFRL.curGame.map.cells[key];
 			 	if (key == txy) {
 			 		isInFov = true;
 			 	}

@@ -59,8 +59,8 @@ BFRL.Being.prototype.scanFov = function() {
 	this.fovMapCells = [];
 	var lightPasses = function(x, y) {
 		var key = x+","+y;
-		if (key in BFRL.currentGame.map.cells) { // is part of the map
-			return (BFRL.currentGame.map.cells[key].length > 0);
+		if (key in BFRL.curGame.map.cells) { // is part of the map
+			return (BFRL.curGame.map.cells[key].length > 0);
 		}
 		return false;
 	}
@@ -68,7 +68,7 @@ BFRL.Being.prototype.scanFov = function() {
 	var tbfov = this.fovMapCells;
 	fov.compute(this._x, this._y, this.fovRange, function(x, y, r, visibility) {
 		var key = x+","+y;
-	 	tbfov[key] = BFRL.currentGame.map.cells[key];
+	 	tbfov[key] = BFRL.curGame.map.cells[key];
 	});
 };
 
