@@ -8,15 +8,14 @@ BFRL.Player = function(x,y) {
 	this._xp = 0;
 	this._xpLevel = 1;
 	this._prevLevelXp = 0;
-	this._nextLevelXp = 30;
+	this._nextLevelXp = 30; 
+	this._speed = 1; // ROT.js scheduler speed
+	this._targetCycleOffset = 0; // for cycling through targets of ranged attack
+	this._target = {};
+
 	this.updateXpProgress();
-	this._speed = 1;
 }
 BFRL.Player.extend(BFRL.Being);
-
-BFRL.Player.prototype.doRest = function() {
-	// intentionally do nothing to burn a turn, TODO: rest?
-}
 
 BFRL.Player.prototype.definition = {
 	"glyph":"@",
@@ -31,6 +30,10 @@ BFRL.Player.prototype.definition = {
 	"lootPool": {
 	},
 	"img": "gu.jpg"
+}
+
+BFRL.Player.prototype.doRest = function() {
+	// intentionally do nothing to burn a turn, TODO: rest?
 }
 
 BFRL.Player.prototype.act = function() {
@@ -81,7 +84,10 @@ BFRL.Player.prototype.resolveBump = function(pobj) {
 	var dmg = this.weapon.inflictDamage(pobj,this);
 	window.publish("atk_" + this.objectId, this, {'dmg':dmg,'wielder':this}); // pubsub event for an attack taking place
 	window.publish("dmg_" + pobj.objectId, this, {'dmg':dmg, 'dmgType':this.weapon.damageType}); // pubsub for damage being done
+	this.resolveAttack(pobj);
+}
 
+BFRL.Player.prototype.resolveAttack = function(pobj) {
 	// check for kill
 	if (pobj._hitpoints <= 0) { // killed!
 		// give "xp" for kill
@@ -117,5 +123,50 @@ BFRL.Player.prototype.resolveColocation = function() {
 		if (cobj == this._game.map.exit) {
 			this._game.delveDeeper();
 		}
+	}
+}
+
+BFRL.Player.prototype.showLosToNextTarget = function(offset) {
+	// only if something's in FOV
+	if (this.fovPobjs.length > 0) {
+		offset = offset || 0;
+		var fov_len = this.fovPobjs.length;
+		this._targetCycleOffset = Math.abs((this._targetCycleOffset + offset)%fov_len);
+		var fxy = [this.getX(),this.getY()];
+		var target = this.fovPobjs[this._targetCycleOffset];
+		this._target = target; // remember our target for doShot() purposes
+		var txy = [target.getX(),target.getY()];
+		var atk_range = 10; // TODO ... get from weapon + modifiers
+		this.drawFov();
+		BFRL.curGame.map.showLineOfSight(fxy,txy,atk_range);
+	}
+}
+
+BFRL.Player.prototype.doShot = function() {
+	if (!this._target || !this._target._hitpoints) {
+		return;
+	}
+	var dmg = 4; // TODO: read ranged attack weapon and apply modifiers
+	window.publish("atk_" + this.objectId, this, {'dmg':dmg,'wielder':this}); // pubsub event for an attack taking place
+	window.publish("dmg_" + this._target.objectId, this, {'dmg':dmg, 'dmgType':BFRL.DMGTYPE_PIERCE,'weapon_name':'arrow'}); // pubsub for damage being done
+	this.resolveAttack(this._target);
+}
+
+BFRL.Player.prototype.tryMoveInDirection = function(md) {
+	var diff = ROT.DIRS[8][md];
+	var newX = this._x + diff[0];
+	var newY = this._y + diff[1];
+	var newKey = newX + "," + newY;
+
+	var moveResult = this._game.getMoveResult(this,newX,newY);
+	if (moveResult.isOpen != true) {
+		if (moveResult.bumpedEntity != null) {
+		    this.resolveBump(moveResult.bumpedEntity);
+		} else {
+		    return;
+		}
+	} else {
+		this.relocate(newX,newY);
+		this.resolveColocation();
 	}
 }

@@ -89,16 +89,17 @@ BFRL.Being.prototype.handleMessage = function(message, publisher, data) {
 	var msgtype = message.split("_")[0];
 	switch(msgtype) {
 		case "dmg":
-			this.receiveDamage(data['dmg'],data['dmgType'],publisher);
+			this.receiveDamage(data['dmg'],data['dmgType'],publisher,data['weapon_name']);
 			break;
 	}
 };
 
-BFRL.Being.prototype.receiveDamage = function(dmg, dmgType, dmgInflictor) {
+BFRL.Being.prototype.receiveDamage = function(dmg, dmgType, dmgInflictor, weapon_name) {
 	// for now, just take damage (nuances, resistances, etc TODO)
 	this._hitpoints -= dmg;
 	this._lastDamagedBy = dmgInflictor;
-	window.publish('log_message',this,this._name + " takes " + dmg + " damage from " + dmgInflictor._name + "'s " + dmgInflictor.weapon._name);
+	weapon_name = weapon_name || dmgInflictor.weapon._name || 'attack';
+	window.publish('log_message',this,this._name + " takes " + dmg + " damage from " + dmgInflictor._name + "'s " + weapon_name);
 }
 
 BFRL.Being.prototype.gainHitpoints = function(hpgain,msg) {
@@ -185,6 +186,6 @@ BFRL.Being.prototype.resolveBump = function(be) {
 	if (be == this.aggressionTarget) {
 		var dmg = this.weapon.inflictDamage(be,this);
 		window.publish("atk_" + this.objectId, this, {'dmg':dmg,'wielder':this}); // pubsub event for an attack taking place
-		window.publish("dmg_" + be.objectId, this, {'dmg':dmg, 'dmgType':this.weapon.damageType}); // pubsub for damage being done
+		window.publish("dmg_" + be.objectId, this, {'dmg':dmg, 'dmgType':this.weapon.damageType, 'weapon_name':this.weapon._name}); // pubsub for damage being done
 	}
 }

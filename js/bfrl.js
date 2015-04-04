@@ -32,6 +32,13 @@ var BFRL = BFRL || {
     UIMODE_PLAYER_ACT: 0,
     UIMODE_INVENTORY: 1,
     UIMODE_GAMEOVER: 2,
+    UIMODE_TARGETING: 3,
+
+    KEY_SHOOT: 83, // 's'
+    KEY_WAIT: 32, // space
+    KEY_CYCLE_NEXT: 68, // 'd'
+    KEY_CYCLE_PREV: 65, // 'a'
+    KEY_NOOP: 999,
 
     // keymap
     keyMap: {
@@ -122,40 +129,59 @@ var BFRL = BFRL || {
         }
     },
 
-    setUiMode: function(uimode) {
-        this.uiMode = uimode;
+    setUiMode: function(m) {
+        this.uiMode = m;
     },
 
     handleEvent: function(e) {
-        if (this.uiMode == BFRL.UIMODE_PLAYER_ACT) {
-            var code = e.keyCode;
-            var plyr = this.curGame.player;
-            if (code == 32) { // spacebar
-                plyr.doRest();
-            } else {
-                if (!(code in BFRL.keyMap)) { return; }
-
-                var diff = ROT.DIRS[8][BFRL.keyMap[code]];
-                var newX = plyr.getX() + diff[0];
-                var newY = plyr.getY() + diff[1];
-
-                var newKey = newX + "," + newY;
-
-                // is it a map space
-                var moveResult = this.curGame.getMoveResult(plyr,newX,newY);
-                if (moveResult.isOpen != true) {
-                    if (moveResult.bumpedEntity != null) {
-                        plyr.resolveBump(moveResult.bumpedEntity);
-                    } else {
+        var code = e.keyCode;
+        var plyr = this.curGame.player;
+        switch (this.uiMode) {
+            /** Main mode of movement/acting **/
+            case BFRL.UIMODE_PLAYER_ACT:
+                switch(code) {
+                    case BFRL.KEY_WAIT:
+                        plyr.doRest();
+                        break;
+                    case BFRL.KEY_SHOOT:
+                        plyr.showLosToNextTarget();
+                        this.setUiMode(BFRL.UIMODE_TARGETING);
                         return;
-                    }
-                } else {
-                    plyr.relocate(newX,newY);
-                    plyr.resolveColocation();
+                    case BFRL.KEY_NOOP:
+                        break;
+                    default:
+                        // interpret as a move
+                        if (!(code in BFRL.keyMap)) { return; }
+                        plyr.tryMoveInDirection(BFRL.keyMap[code]);
+                        break;
                 }
-            }
-            window.removeEventListener("keydown", this);
-            this.curGame.engine.unlock();
+                window.removeEventListener("keydown", this);
+                this.curGame.engine.unlock();
+                break;
+
+            /** Targeting a shot/spell/throw **/
+            case BFRL.UIMODE_TARGETING:
+                switch(code) {
+                    case BFRL.KEY_SHOOT:
+                        // TODO: shoot readied projectile from player to target!
+                        plyr.doShot();
+                        this.setUiMode(BFRL.UIMODE_PLAYER_ACT); // switch back to regular action input
+                        this.handleEvent({keyCode:BFRL.KEY_NOOP}); // tick time with a fake event
+                        break;
+                    case BFRL.KEY_CYCLE_NEXT:
+                        plyr.showLosToNextTarget(1);
+                        break;
+                    case BFRL.KEY_CYCLE_PREV:
+                        plyr.showLosToNextTarget(-1);
+                        break;
+                    default: // anything else passes through to act, cancels aiming
+                        this.setUiMode(BFRL.UIMODE_PLAYER_ACT);
+                        this.handleEvent(e); // pass it through
+                        break;
+                }
+                break;
+            default:
+                break;
         }
     },
 

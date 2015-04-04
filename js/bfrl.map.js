@@ -176,11 +176,10 @@
 	* txy - To X,Y [x,y]
 	*/
 		showLineOfSight: function(fxy,txy,range) {
-			var range = range || 12;
+			var range = 100;
 			var isInFov = false;
 
 			// check if in FOV
-			this.fovMapCells = [];
 			var lightPasses = function(x, y) {
 				var key = x+","+y;
 				if (key in BFRL.curGame.map.cells) { // is part of the map
@@ -190,14 +189,13 @@
 			}
 			var fov = new ROT.FOV.RecursiveShadowcasting(lightPasses);
 			var fov_cells = {};
-			fov.compute(fxy[0], fxy[1], range, function(x, y, r, visibility) {
+			fov.compute(parseInt(fxy[0]), parseInt(fxy[1]), range, function(x, y, r, visibility) {
 				var key = x+","+y;
 				fov_cells[key] = BFRL.curGame.map.cells[key];
 			 	if (key == txy) {
 			 		isInFov = true;
 			 	}
 			});
-
 			// create path
 			if (isInFov == true) {
 				var path = this.getPath(fxy[0],fxy[1],txy[0],txy[1],8,true);
