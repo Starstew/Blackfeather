@@ -15,11 +15,11 @@ BFRL.gui = {
         BFRL.display.drawText(x, y, alertText, 24);
 
         if (delay > 0) {
-            window.removeEventListener("keydown", BFRL.curGame.player);
+            window.removeEventListener("keydown", BFRL);
         }
         if (autoContinue === true) {
             setTimeout(function() {
-                window.addEventListener("keydown", BFRL.curGame.player);
+                window.addEventListener("keydown", BFRL);
                 BFRL.curGame.engine.unlock();
             }, delay);
         } else {
@@ -29,21 +29,13 @@ BFRL.gui = {
         }
     },
 
-    showGameOver: function(msg) {
-        BFRL.curGame.engine.lock();
-        BFRL.display.clear();
-        this.showAlert(msg, 5, 5, 50, 3000);
-        this.isWaitingToRestart = true;
-        return;
-    },
-
     handleEvent: function(e) {
         BFRL.curGame.engine.unlock();
         if (this.isWaitingToRestart) {
             this.isWaitingToRestart = false;
             BFRL.startNewGame();
         } else {
-            window.addEventListener("keydown", BFRL.curGame.player);
+            window.addEventListener("keydown", BFRL);
         }
         window.removeEventListener("keydown", this);
     },

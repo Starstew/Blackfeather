@@ -10,7 +10,7 @@ var BFRL = BFRL || {
         mapWallColor: "#553",
         mapFloorColorHidden: "#222",
         mapWallColorHidden: "#111",
-        fovBase: 8
+        fovBase: 5
     },
 
     //constants
@@ -29,6 +29,22 @@ var BFRL = BFRL || {
     EGRESS_ENTRANCE: 0,
     EGRESS_EXIT: 1,
 
+    UIMODE_PLAYER_ACT: 0,
+    UIMODE_INVENTORY: 1,
+    UIMODE_GAMEOVER: 2,
+
+    // keymap
+    keyMap: {
+        '38': 0,
+        '33': 1,
+        '39': 2,
+        '34': 3,
+        '40': 4,
+        '35': 5,
+        '37': 6,
+        '36': 7
+     },
+
     // vars
     game: null, // "Game" currently in progress
     npcManifest: {}, // JSON of monsters/npc definitions
@@ -37,6 +53,7 @@ var BFRL = BFRL || {
     weaponTypes: [], // list of all weapon constructors (built from defs)
     display: {}, // ROT.Display for game
     worldPobjs: {}, // various pobj types in the world
+    uiMode: 0,
 
     // functions
     init: function() {
@@ -103,6 +120,57 @@ var BFRL = BFRL || {
             this.weaponManifest[i].prototype['definition'] = Armory[i];
             this.weaponTypes.push(this.weaponManifest[i]);
         }
+    },
+
+    setUiMode: function(uimode) {
+        this.uiMode = uimode;
+    },
+
+    handleEvent: function(e) {
+        if (this.uiMode == BFRL.UIMODE_PLAYER_ACT) {
+            var code = e.keyCode;
+            var plyr = this.curGame.player;
+            if (code == 32) { // spacebar
+                plyr.doRest();
+            } else {
+                if (!(code in BFRL.keyMap)) { return; }
+
+                var diff = ROT.DIRS[8][BFRL.keyMap[code]];
+                var newX = plyr.getX() + diff[0];
+                var newY = plyr.getY() + diff[1];
+
+                var newKey = newX + "," + newY;
+
+                // is it a map space
+                var moveResult = this.curGame.getMoveResult(plyr,newX,newY);
+                if (moveResult.isOpen != true) {
+                    if (moveResult.bumpedEntity != null) {
+                        plyr.resolveBump(moveResult.bumpedEntity);
+                    } else {
+                        return;
+                    }
+                } else {
+                    plyr.relocate(newX,newY);
+                    plyr.resolveColocation();
+                }
+            }
+            window.removeEventListener("keydown", this);
+            this.curGame.engine.unlock();
+        }
+    },
+
+    waitForNextPlayerInput: function() {
+        // stop the engine and wait for next input
+        this.curGame.engine.lock();
+        window.addEventListener("keydown",this);
+    },
+
+    doGameOver: function(msg) {
+        this.curGame.engine.lock();
+        this.display.clear();
+        this.gui.showAlert(msg, 5, 5, 50, 3000);
+        this.gui.isWaitingToRestart = true;
+        return;
     }
 };
 
@@ -148,8 +216,5 @@ var BFRL = BFRL || {
         },
         window.clearSubscribers = function() {
             _subscribers = {};
-        },
-        window.showSubscribers = function() {
-            console.log(_subscribers);
         }
 })();

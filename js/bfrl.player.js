@@ -35,10 +35,12 @@ BFRL.Player.prototype.definition = {
 
 BFRL.Player.prototype.act = function() {
 	if (this._hitpoints <= 0) {
+
 		var msg = "You have been killed by " + this._lastDamagedBy._name + "'s " 
 			+ this._lastDamagedBy.weapon._name + "!\nDepth: "
 			+ this._game.depth+"\nGold: " + this._gold;
-		BFRL.gui.showGameOver(msg);
+
+		BFRL.doGameOver(msg);
 		return;
 	}
 
@@ -51,51 +53,8 @@ BFRL.Player.prototype.act = function() {
 	// update the UI
 	BFRL.gui.refreshUi();
 
-	// stop the engine and wait for next input
-	this._game.engine.lock();
-	window.addEventListener("keydown",this);
+	BFRL.waitForNextPlayerInput();
 }
-
-BFRL.Player.prototype.handleEvent = function(e) {
-	var keyMap = {};
-	keyMap[38] = 0;
-	keyMap[33] = 1;
-	keyMap[39] = 2;
-	keyMap[34] = 3;
-	keyMap[40] = 4;
-	keyMap[35] = 5;
-	keyMap[37] = 6;
-	keyMap[36] = 7;
-
-	var code = e.keyCode;
-
-	if (code == 32) { // spacebar
-		this.doRest();
-	} else {
-		if (!(code in keyMap)) { return; }
-
-		var diff = ROT.DIRS[8][keyMap[code]];
-		var newX = this._x + diff[0];
-		var newY = this._y + diff[1];
-
-		var newKey = newX + "," + newY;
-
-		// is it a map space
-		var moveResult = this._game.getMoveResult(this,newX,newY);
-		if (moveResult.isOpen != true) {
-			if (moveResult.bumpedEntity != null) {
-				this.resolveBump(moveResult.bumpedEntity);
-			} else {
-				return;
-			}
-		} else {
-			this.relocate(newX,newY);
-			this.resolveColocation();
-		}
-	}
-	window.removeEventListener("keydown", this);
-	this._game.engine.unlock();
-};
 
 BFRL.Player.prototype.drawFov = function() {
 	this.scanFov();
