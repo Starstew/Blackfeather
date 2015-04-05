@@ -3,30 +3,42 @@
 	var Armory = {
 		"Sword": {
 			"label":"Sword",
-			"damageType":"SLASH",
+			"weaponType":"SWORD",
 			"damageRange":[6,12],
 			"glyph":"/"		
 		},
 		"Dagger": {
 			"label":"Dagger",
-			"damageType":"SLASH",
+			"weaponType":"DAGGER",
 			"damageRange":[2,6],
 			"glyph":"'"	
 		},
 		"Club": {
 			"label":"Club",
-			"damageType":"BLUNT",
+			"weaponType":"CLUB",
 			"damageRange":[1,6],
 			"glyph":"!"
 		},
 		"VorpalBlade": {
 			"label":"Vorpal Blade",
-			"damageType":"SLASH",
+			"weaponType":"SWORD",
 			"damageRange":[2,12],
 			"traits": {
 				"ATK_DRAINLIFE": {}
 			},
 			"glyph":"/"
+		},
+		"Bow": {
+			"label":"Bow",
+			"range":10,
+			"weaponType":"BOW",
+			"glyph":"}"
+		},
+		"Arrow": {
+			"label":"Arrow",
+			"weaponType":"ARROW",
+			"damageRange":[1,6],
+			"glyph":"-"
 		}
 	}
 

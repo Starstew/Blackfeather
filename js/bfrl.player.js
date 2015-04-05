@@ -13,8 +13,22 @@ BFRL.Player = function(x,y) {
 	this._targetCycleOffset = 0; // for cycling through targets of ranged attack
 	this._target = {};
 
+	// equip
+	var sword =	new BFRL.weaponManifest['Sword'](0,0,true);
+	var bow = new BFRL.weaponManifest['Bow'](0,0,true);
+	this.equipment = {
+		ranged: bow,
+		melee: sword,
+		body:{}, // armor
+		head:{}, // armor
+		feet:{}, // armor
+		arms:{},
+		ringLeft:{},
+		ringRight:{}
+	}
+
 	this.updateXpProgress();
-}
+};
 BFRL.Player.extend(BFRL.Being);
 
 BFRL.Player.prototype.definition = {
@@ -25,16 +39,16 @@ BFRL.Player.prototype.definition = {
 	"difficulty":1,
 	"fovFactor":1,
 	"weaponPool": {
-		"Sword": 1
+		"Sword":1
 	},
 	"lootPool": {
 	},
 	"img": "gu.jpg"
-}
+};
 
 BFRL.Player.prototype.doRest = function() {
 	// intentionally do nothing to burn a turn, TODO: rest?
-}
+};
 
 BFRL.Player.prototype.act = function() {
 	if (this._hitpoints <= 0) {
@@ -57,7 +71,7 @@ BFRL.Player.prototype.act = function() {
 	BFRL.gui.refreshUi();
 
 	BFRL.waitForNextPlayerInput();
-}
+};
 
 BFRL.Player.prototype.drawFov = function() {
 	this.scanFov();
@@ -81,11 +95,14 @@ BFRL.Player.prototype.drawFov = function() {
 
 BFRL.Player.prototype.resolveBump = function(pobj) {
 	// attack everything (TODO: non-violent tactics)
-	var dmg = this.weapon.inflictDamage(pobj,this);
-	window.publish("atk_" + this.objectId, this, {'dmg':dmg,'wielder':this}); // pubsub event for an attack taking place
-	window.publish("dmg_" + pobj.objectId, this, {'dmg':dmg, 'dmgType':this.weapon.damageType}); // pubsub for damage being done
-	this.resolveAttack(pobj);
-}
+	if (this.equipment.melee && this.equipment.melee != null) {
+		var w = this.equipment.melee;
+		var dmg = w.inflictDamage(pobj,this);
+		window.publish("atk_" + this.objectId, this, {'dmg':dmg,'wielder':this}); // pubsub event for an attack taking place
+		window.publish("dmg_" + pobj.objectId, this, {'dmg':dmg, 'dmgType':w.damageType}); // pubsub for damage being done
+		this.resolveAttack(pobj);
+	}
+};
 
 BFRL.Player.prototype.resolveAttack = function(pobj) {
 	// check for kill
@@ -103,11 +120,11 @@ BFRL.Player.prototype.resolveAttack = function(pobj) {
 			this.updateXpProgress();
 		}
 	}
-}
+};
 
 BFRL.Player.prototype.updateXpProgress = function() {
 	this._nextLevelProgress = Math.floor(1/(this._nextLevelXp - this._prevLevelXp) * (this._xp - this._prevLevelXp) * 100);
-}
+};
 
 BFRL.Player.prototype.resolveColocation = function() {
 	// check the space we're standing on for ispassable items we might want to pick up, or get trapped by, etc.
@@ -124,7 +141,7 @@ BFRL.Player.prototype.resolveColocation = function() {
 			this._game.delveDeeper();
 		}
 	}
-}
+};
 
 BFRL.Player.prototype.showLosToNextTarget = function(offset) {
 	// only if something's in FOV
@@ -134,23 +151,13 @@ BFRL.Player.prototype.showLosToNextTarget = function(offset) {
 		this._targetCycleOffset = Math.abs((this._targetCycleOffset + offset)%fov_len);
 		var fxy = [this.getX(),this.getY()];
 		var target = this.fovPobjs[this._targetCycleOffset];
-		this._target = target; // remember our target for doShot() purposes
+		this._target = target; // remember our target for ranged attack purposes
 		var txy = [target.getX(),target.getY()];
 		var atk_range = 10; // TODO ... get from weapon + modifiers
 		this.drawFov();
 		BFRL.curGame.map.showLineOfSight(fxy,txy,atk_range);
 	}
-}
-
-BFRL.Player.prototype.doShot = function() {
-	if (!this._target || !this._target._hitpoints) {
-		return;
-	}
-	var dmg = 4; // TODO: read ranged attack weapon and apply modifiers
-	window.publish("atk_" + this.objectId, this, {'dmg':dmg,'wielder':this}); // pubsub event for an attack taking place
-	window.publish("dmg_" + this._target.objectId, this, {'dmg':dmg, 'dmgType':BFRL.DMGTYPE_PIERCE,'weapon_name':'arrow'}); // pubsub for damage being done
-	this.resolveAttack(this._target);
-}
+};
 
 BFRL.Player.prototype.tryMoveInDirection = function(md) {
 	var diff = ROT.DIRS[8][md];
@@ -169,4 +176,4 @@ BFRL.Player.prototype.tryMoveInDirection = function(md) {
 		this.relocate(newX,newY);
 		this.resolveColocation();
 	}
-}
+};

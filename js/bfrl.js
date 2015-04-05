@@ -10,7 +10,7 @@ var BFRL = BFRL || {
         mapWallColor: "#553",
         mapFloorColorHidden: "#222",
         mapWallColorHidden: "#111",
-        fovBase: 5
+        fovBase: 12
     },
 
     //constants
@@ -18,13 +18,14 @@ var BFRL = BFRL || {
     DISP_FRIENDLY: 1,
     DISP_AGGRESSIVE: 2,
 
-    DMGTYPE_SLASH: 0,
+    DMGTYPE_NONE: 0,
     DMGTYPE_BLUNT: 1,
     DMGTYPE_PIERCE: 2,
     DMGTYPE_HEAT: 3,
     DMGTYPE_PSIONIC: 4,
     DMGTYPE_COLD: 5,
     DMGTYPE_POISON: 6,
+    DMGTYPE_SLASH: 7,
 
     EGRESS_ENTRANCE: 0,
     EGRESS_EXIT: 1,
@@ -39,6 +40,17 @@ var BFRL = BFRL || {
     KEY_CYCLE_NEXT: 68, // 'd'
     KEY_CYCLE_PREV: 65, // 'a'
     KEY_NOOP: 999,
+
+    WEAPONTYPE_ARROW: 1,
+    WEAPONTYPE_BOW: 2,
+    WEAPONTYPE_SWORD: 3,
+    WEAPONTYPE_DAGGER: 4,
+    WEAPONTYPE_CLUB: 5,
+    WEAPONTYPE_STAFF: 6,
+
+    ATTACKMODE_RANGED: 1,
+    ATTACKMODE_MELEE: 2,
+    ATTACKMODE_AMMO: 3,
 
     // keymap
     keyMap: {
@@ -164,7 +176,7 @@ var BFRL = BFRL || {
                 switch(code) {
                     case BFRL.KEY_SHOOT:
                         // TODO: shoot readied projectile from player to target!
-                        plyr.doShot();
+                        plyr.doRangedAttack();
                         this.setUiMode(BFRL.UIMODE_PLAYER_ACT); // switch back to regular action input
                         this.handleEvent({keyCode:BFRL.KEY_NOOP}); // tick time with a fake event
                         break;
