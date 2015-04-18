@@ -1,15 +1,15 @@
 BFRL.game = function() {
-	 // blank all state vars
-        window.clearSubscribers();
-        this.fovMapCells = [];
-        this.seenMapCells = [];
-        this.map = {};
-        this.engine = null;
-        this.player = null;
-        this._scheduler = null;
-        this.statusMsg = '';
+	// blank all state vars
+    window.clearSubscribers();
+    this.fovMapCells = [];
+    this.seenMapCells = [];
+    this.map = {};
+    this.engine = null;
+    this.player = null;
+    this._scheduler = null;
+    this.statusMsg = '';
 
-        BFRL.gui.clearLogDisplay();
+    BFRL.gui.clearLogDisplay();
 }
 
 BFRL.game.prototype = {

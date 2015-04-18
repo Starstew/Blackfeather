@@ -133,7 +133,7 @@
 			"lootPool": {
 				"GoldPile": 10,
 				"GoldPile": 20,
-				"Mushroom": 5
+				"Mushroom": 15
 			},
 			"img": "halfling.jpg"
 		},
@@ -152,7 +152,7 @@
 			"lootPool": {
 				"GoldPile": 10,
 				"GoldPile": 20,
-				"Mushroom": 5
+				"Mushroom": 15
 			},
 			"img": "bob.jpg"
 		},
@@ -173,7 +173,7 @@
 				"GoldPile": 10,
 				"GoldPile": 20,
 				"GoldPile": 5,
-				"Mushroom": 5
+				"Mushroom": 15
 			},
 			"img": "goblin.jpg"
 		},
@@ -192,7 +192,7 @@
 			},
 			"lootPool": {
 				"GoldPile": 10,
-				"Mushroom": 20
+				"Mushroom": 40
 			},
 			"img": "gnome.jpg"
 		},
@@ -213,7 +213,7 @@
 				"GoldPile": 50,
 				"GoldPile": 150,
 				"GoldPile": 70,
-				"Mushroom": 10
+				"Mushroom": 30
 			},
 			"img": "shrub.jpg"
 		},
@@ -234,7 +234,7 @@
 				"GoldPile": 50,
 				"GoldPile": 150,
 				"GoldPile": 70,
-				"Mushroom": 10
+				"Mushroom": 30
 			},
 			"img": "minotaur.jpg"
 		},

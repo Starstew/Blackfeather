@@ -25,10 +25,11 @@ BFRL.Weapon = function(x,y) {
 }
 BFRL.Weapon.extend(BFRL.Pobj);
 
+/* setWeaponType
+*  Keys on weapon type to set damageType and attackMode
+*/
 BFRL.Weapon.prototype.setWeaponType = function(wt) {
 	this.weaponType = wt;
-
-	// set base damage type
 	switch(wt) {
 		case BFRL.WEAPONTYPE_SWORD:
 			this.damageType = BFRL.DMGTYPE_SLASH;
@@ -61,9 +62,6 @@ BFRL.Weapon.prototype.setWeaponType = function(wt) {
 
 BFRL.Weapon.prototype.inflictDamage = function(targetPobj, wielder) {
 	var dmg = Math.floor((ROT.RNG.getUniform() * (this.damageRange[1] - this.damageRange[0])) + this.damageRange[0]);
-	if (wielder._xpLevel) {
-		dmg += wielder._xpLevel * 2;
-	}
 	window.publish("atk_" + this.objectId, this, {'dmg':dmg,'wielder':wielder});
 	return dmg; 
 };

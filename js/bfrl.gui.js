@@ -75,16 +75,12 @@ BFRL.gui = {
 
     refreshStatusDisplay: function() {
         var player = BFRL.curGame.player;
-        var newhtml = "<span class='player_name'>" + player._name +
-            " <div class='levelxp'><div class='leveltext'>Lvl. " + player._xpLevel + "</div><div class='xpbar'></div></div></span>";
+        var newhtml = "<span class='player_name'>" + player._name + "</span>";
         newhtml += "<span class='hitpoints'>[" + player._hitpoints + "/" + player._hitpointsMax + "]</span>";
         newhtml += "<span class='weapon'>Wielding: " + player.weapon._name + "</span>";
         newhtml += "<span class='gold'>" + player._gold + "GP</span>";
         newhtml += "<span class='depth'>Depth: " + BFRL.curGame.depth + "</span>";
         document.querySelector('#status_display').innerHTML = newhtml;
-
-        //update xpbar
-        $('.levelxp .xpbar').css('width', player._nextLevelProgress + "%");
     },
 
     refreshFovDisplay: function() {

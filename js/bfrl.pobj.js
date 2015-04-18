@@ -115,7 +115,7 @@ BFRL.worldPobjs.Mushroom = function(x,y,factor) {
 }
 BFRL.worldPobjs.Mushroom.extend(BFRL.Pobj);
 BFRL.worldPobjs.Mushroom.prototype.onPickup = function(pickerUpper) {
-	pickerUpper._hitpointsMax += 1;
+	pickerUpper._hitpointsMax += Math.floor(this.power * 0.1);
 	pickerUpper.gainHitpoints(this.power,"by eating a yummy mushroom");
 	this._game.removePobj(this);
 }

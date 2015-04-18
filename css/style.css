@@ -38,35 +38,6 @@ body {
 	background-color: #aa0;
 }
 
-#status_display .levelxp {
-	display: inline-block;
-	position: relative;
-	vertical-align: top;
-	width: 100px;
-	height: 1.5em;
-	border: 1px solid #555;
-	background-color: #888;
-}
-#status_display .levelxp .leveltext {
-	display: inline-block;
-	position: absolute;
-	top: 2px;
-	left: 2px;
-	height: 100%;
-	width: 100%;
-	z-index: 2;
-}
-#status_display .levelxp .xpbar {
-	display: inline-block;
-	position: absolute;
-	background-color: #fff;
-	top: 0px;
-	left: 0px;
-	height: 100%;
-	width: 0%;
-	z-index: 1;
-}
-
 #msg_display {
 	width: 360px;
 	min-width: 360px;
