@@ -5,10 +5,6 @@ BFRL.Player = function(x,y) {
 	// player-specific stuff
 	this._gold = 0;
 	this._name = "Wombat";
-	this._xp = 0;
-	this._xpLevel = 1;
-	this._prevLevelXp = 0;
-	this._nextLevelXp = 30; 
 	this._speed = 1; // ROT.js scheduler speed
 	this._targetCycleOffset = 0; // for cycling through targets of ranged attack
 	this._target = {};
@@ -26,8 +22,6 @@ BFRL.Player = function(x,y) {
 		ringLeft:{},
 		ringRight:{}
 	}
-
-	this.updateXpProgress();
 };
 BFRL.Player.extend(BFRL.Being);
 
@@ -52,7 +46,6 @@ BFRL.Player.prototype.doRest = function() {
 
 BFRL.Player.prototype.act = function() {
 	if (this._hitpoints <= 0) {
-
 		var msg = "You have been killed by " + this._lastDamagedBy._name + "'s " 
 			+ this._lastDamagedBy.weapon._name + "!\nDepth: "
 			+ this._game.depth+"\nGold: " + this._gold;
@@ -105,25 +98,6 @@ BFRL.Player.prototype.resolveBump = function(pobj) {
 };
 
 BFRL.Player.prototype.resolveAttack = function(pobj) {
-	// check for kill
-	if (pobj._hitpoints <= 0) { // killed!
-		// give "xp" for kill
-		this._xp += (pobj._difficulty*3);
-		this.updateXpProgress();
-		if (this._xp>=this._nextLevelXp) {
-			this._xpLevel += 1;
-			this._prevLevelXp = this._nextLevelXp;
-			this._nextLevelXp += Math.floor(this._xpLevel * 50);
-			window.publish('log_message',this,"<span class='levelup'>Reached level " + this._xpLevel + "!</span>");
-			this._hitpointsMax += this._xpLevel;
-			this._hitpoints = this._hitpointsMax;
-			this.updateXpProgress();
-		}
-	}
-};
-
-BFRL.Player.prototype.updateXpProgress = function() {
-	this._nextLevelProgress = Math.floor(1/(this._nextLevelXp - this._prevLevelXp) * (this._xp - this._prevLevelXp) * 100);
 };
 
 BFRL.Player.prototype.resolveColocation = function() {
@@ -167,13 +141,15 @@ BFRL.Player.prototype.tryMoveInDirection = function(md) {
 
 	var moveResult = this._game.getMoveResult(this,newX,newY);
 	if (moveResult.isOpen != true) {
+		console.log(moveResult);
 		if (moveResult.bumpedEntity != null) {
 		    this.resolveBump(moveResult.bumpedEntity);
 		} else {
-		    return;
+		    return false;
 		}
 	} else {
 		this.relocate(newX,newY);
 		this.resolveColocation();
 	}
+	return true;
 };
