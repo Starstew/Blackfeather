@@ -52,7 +52,7 @@ BFRL.gui = {
     },
 
     refreshLogDisplay: function() {
-        if (!BFRL.curGame.statusMsg.length > 0) {
+        if (BFRL.curGame.statusMsg.length <= 0) {
             return;
         }
         this.msgLog.push(BFRL.curGame.statusMsg);
@@ -63,7 +63,7 @@ BFRL.gui = {
         var len = Math.min(dlog.length, 5);
         dlog.reverse();
         for (var i = 0; i < len; i++) {
-            if (i == 0) {
+            if (i === 0) {
                 log_excerpt += "<b>" + dlog[i] + "</b><br>";
             } else {
                 log_excerpt += dlog[i] + "<br>";
@@ -90,7 +90,7 @@ BFRL.gui = {
         var displayed = 0;
         for (var i = 0; i < len; i++) {
             var po = player.fovPobjs[i];
-            if (po instanceof BFRL.Being == false) {
+            if (po instanceof BFRL.Being === false) {
                 continue;
             } // skip non-Beings for this UI
             var po_html = $("<div class='fov_item'><span>" + po._glyph + ":" + po._name + "</span></div>");
@@ -99,7 +99,7 @@ BFRL.gui = {
             displayed++;
         }
         var imgwidth = Math.floor($('#fov_display')
-            .innerWidth() / Math.max(2, displayed)) - 2;;
+            .innerWidth() / Math.max(2, displayed)) - 2;
         $('#fov_display .fov_item').css('width', imgwidth + 'px');
     }
 };

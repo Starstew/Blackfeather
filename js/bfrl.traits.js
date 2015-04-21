@@ -13,13 +13,13 @@ BFRL.Traits = {
 			* data == {dmg:[int],wielder:[Being]}
 			*/
 			targetObj.traits[this.type].handleMessage = function(msg, publisher, data) {
-				var dmg = parseInt(data['dmg']);
-				var wielder = data['wielder'];
+				var dmg = parseInt(data.dmg);
+				var wielder = data.wielder;
 				if (wielder instanceof BFRL.Being) {
 					var actual_gain = Math.min(dmg, wielder._hitPointsMax - dmg);
 					wielder.gainHitpoints(dmg,"by Drain Life");
 				}
-			}
+			};
 		}
 	}
-}
+};

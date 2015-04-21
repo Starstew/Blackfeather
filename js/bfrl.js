@@ -99,7 +99,7 @@ var BFRL = BFRL || {
     },
 
     startNewGame: function() {
-        this.curGame = new BFRL.game;
+        this.curGame = new BFRL.game();
         this.curGame.start();
         BFRL.gui.showAlert("So begins your quest for the Black Feather...");
     },
@@ -117,7 +117,7 @@ var BFRL = BFRL || {
 
             this.npcManifest[i] = new Function('x', 'y', 'BFRL.Being.call(this,x,y);');
             this.npcManifest[i].extend(BFRL.Being);
-            this.npcManifest[i].prototype['definition'] = MonsterManual[i];
+            this.npcManifest[i].prototype.definition = MonsterManual[i];
             this.npcTypes.push(this.npcManifest[i]);
         }
     },
@@ -135,7 +135,7 @@ var BFRL = BFRL || {
 
             this.weaponManifest[i] = new Function('x', 'y', 'notObj', 'BFRL.Weapon.call(this,x,y,notObj);');
             this.weaponManifest[i].extend(BFRL.Weapon);
-            this.weaponManifest[i].prototype['definition'] = Armory[i];
+            this.weaponManifest[i].prototype.definition = Armory[i];
             this.weaponTypes.push(this.weaponManifest[i]);
         }
     },
@@ -163,7 +163,7 @@ var BFRL = BFRL || {
                     default:
                         // interpret as a move
                         if (!(code in BFRL.keyMap)) { return; }
-                        if (plyr.tryMoveInDirection(BFRL.keyMap[code]) == false) {
+                        if (plyr.tryMoveInDirection(BFRL.keyMap[code]) === false) {
                             return; // don't continue to unlock engine/tick if just bumping a wall
                         }
                         break;
@@ -226,19 +226,19 @@ var BFRL = BFRL || {
         subscribers.forEach(function(subscriber) {
             subscriber.handleMessage(message, publisher, data);
         });
-    },
+    };
 
     window.subscribe = function(message, subscriber) {
         if (!(message in _subscribers)) {
             _subscribers[message] = [];
         }
         _subscribers[message].push(subscriber);
-    },
+    };
 
     window.unsubscribe = function(message, subscriber) {
         var index = _subscribers[message].indexOf(subscriber);
         _subscribers[message].splice(index, 1);
-    },
+    };
 
     window.removeSubscriber = function(subscriber) {
         var tempsubs = jQuery.extend(true, {}, _subscribers);
@@ -251,9 +251,9 @@ var BFRL = BFRL || {
                 }
             }
         }
-    },
+    };
 
     window.clearSubscribers = function() {
         _subscribers = {};
-    }
+    };
 })();

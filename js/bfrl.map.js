@@ -10,7 +10,7 @@
 		this.exit = '';
 
 		this._generateCells();
-	}
+	};
 
 	BFRL.Map.prototype = {
 		_generateCells : function() {
@@ -42,7 +42,7 @@
 			for (var w = 0; w < width; w++) {
 				for (var h = 0; h < height; h++) {
 					var cell = this.cells[w+","+h];
-					if (cell == undefined) { // if nothing there
+					if (cell === undefined) { // if nothing there
 						// check for map spaces adjacent
 						var up = Math.max(h-1,0);
 						var rt = Math.min(w+1,width);
@@ -80,18 +80,20 @@
 				}
 			}
 			// place entrance randomly
+			var index, key, xy;
+
 			if (walls_for_egress.length < 1) { walls_for_egress = walls; } // just in case no egressy walls available
-			var index = Math.floor(ROT.RNG.getUniform() * walls_for_egress.length);
-	 		var key = walls_for_egress.splice(index, 1)[0];
+			index = Math.floor(ROT.RNG.getUniform() * walls_for_egress.length);
+	 		key = walls_for_egress.splice(index, 1)[0];
 	 		
-	 		var xy = key.split(",");
+	 		xy = key.split(",");
 			this.entrance = new BFRL.worldPobjs.Egress(xy[0],xy[1], BFRL.EGRESS_ENTRANCE);
 			this.cells[key] = "<";
 
 			// place exit randomly, but at minimum path-length from entrance
-			var index = Math.floor(ROT.RNG.getUniform() * walls.length);
-	 		var key = walls.splice(index, 1)[0];
-	 		var xy = key.split(",");
+			index = Math.floor(ROT.RNG.getUniform() * walls.length);
+	 		key = walls.splice(index, 1)[0];
+	 		xy = key.split(",");
 			this.exit = new BFRL.worldPobjs.Egress(xy[0],xy[1], BFRL.EGRESS_EXIT);
 			this.cells[key] = ">";
 		},
@@ -146,11 +148,11 @@
 				var map = BFRL.curGame.map;
 				var canPass = (xy_key in map.cells); // is an actual map location
 				
-				if (canPass == true && map.pobjCells && map.pobjCells[xy_key]) { // can pass over all objects in that space
+				if (canPass === true && map.pobjCells && map.pobjCells[xy_key]) { // can pass over all objects in that space
 					for(var i in map.pobjCells[xy_key]) {
 						var testpobj = map.pobjCells[xy_key][i];
-						if (ignoreIsPassable != true) {
-							if (testpobj.isPassable == false && (xy_key != fx +","+fy)) {
+						if (ignoreIsPassable !== true) {
+							if (testpobj.isPassable === false && (xy_key != fx +","+fy)) {
 								canPass = false;
 								break;
 							}
@@ -158,13 +160,13 @@
 					}
 				}
 				return canPass;
-			}
+			};
 
 			var astar = new ROT.Path.AStar(tx,ty,passableCallback,{topology:topo});
 			path = [];
 			var pathCallback = function(x,y) {
 				path.push([x,y]);
-			}
+			};
 			astar.compute(fx,fy,pathCallback);
 			path.shift(); // remove starting point
 			return path;
@@ -176,7 +178,7 @@
 	* txy - To X,Y [x,y]
 	*/
 		showLineOfSight: function(fxy,txy,range) {
-			var range = 100;
+			range = 100;
 			var isInFov = false;
 
 			// check if in FOV
@@ -186,7 +188,7 @@
 					return (BFRL.curGame.map.cells[key].length > 0);
 				}
 				return false;
-			}
+			};
 			var fov = new ROT.FOV.RecursiveShadowcasting(lightPasses);
 			var fov_cells = {};
 			fov.compute(parseInt(fxy[0]), parseInt(fxy[1]), range, function(x, y, r, visibility) {
@@ -197,7 +199,7 @@
 			 	}
 			});
 			// create path
-			if (isInFov == true) {
+			if (isInFov === true) {
 				var path = this.getPath(fxy[0],fxy[1],txy[0],txy[1],8,true);
 				var len = path.length;
 				for (var i = 0; i < len; i++) {
@@ -210,4 +212,4 @@
 				}
 			}
 		}
-	}
+	};

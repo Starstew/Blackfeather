@@ -10,8 +10,8 @@ BFRL.Player = function(x,y) {
 	this._target = {};
 
 	// equip
-	var sword =	new BFRL.weaponManifest['Sword'](0,0,true);
-	var bow = new BFRL.weaponManifest['Bow'](0,0,true);
+	var sword =	new BFRL.weaponManifest.Sword(0,0,true);
+	var bow = new BFRL.weaponManifest.Bow(0,0,true);
 	this.equipment = {
 		ranged: bow,
 		melee: sword,
@@ -21,7 +21,7 @@ BFRL.Player = function(x,y) {
 		arms:{},
 		ringLeft:{},
 		ringRight:{}
-	}
+	};
 };
 BFRL.Player.extend(BFRL.Being);
 
@@ -32,11 +32,10 @@ BFRL.Player.prototype.definition = {
 	"hitpointsRange":[100,100],
 	"difficulty":1,
 	"fovFactor":1,
-	"weaponPool": {
-		"Sword":1
-	},
-	"lootPool": {
-	},
+	"weaponPool": [
+		["Sword", 1]
+	],
+	"lootPool": [],
 	"img": "gu.jpg"
 };
 
@@ -46,9 +45,9 @@ BFRL.Player.prototype.doRest = function() {
 
 BFRL.Player.prototype.act = function() {
 	if (this._hitpoints <= 0) {
-		var msg = "You have been killed by " + this._lastDamagedBy._name + "'s " 
-			+ this._lastDamagedBy.weapon._name + "!\nDepth: "
-			+ this._game.depth+"\nGold: " + this._gold;
+		var msg = "You have been killed by " + this._lastDamagedBy._name + "'s " +
+			this._lastDamagedBy.weapon._name + "!\nDepth: " +
+			this._game.depth+"\nGold: " + this._gold;
 
 		BFRL.doGameOver(msg);
 		return;
@@ -70,7 +69,7 @@ BFRL.Player.prototype.drawFov = function() {
 	this.scanFov();
 	this._game.fovMapCells = this.fovMapCells;
 	for (var i in this.fovMapCells) {
-		if (typeof this.fovMapCells[i] == 'function') { continue; };
+		if (typeof this.fovMapCells[i] == 'function') { continue; }
 		var mc = this.fovMapCells[i];
 		if (mc) {
 			if (mc == ".") {
@@ -88,7 +87,7 @@ BFRL.Player.prototype.drawFov = function() {
 
 BFRL.Player.prototype.resolveBump = function(pobj) {
 	// attack everything (TODO: non-violent tactics)
-	if (this.equipment.melee && this.equipment.melee != null) {
+	if (this.equipment.melee && this.equipment.melee !== null) {
 		var w = this.equipment.melee;
 		var dmg = w.inflictDamage(pobj,this);
 		window.publish("atk_" + this.objectId, this, {'dmg':dmg,'wielder':this}); // pubsub event for an attack taking place
@@ -140,9 +139,9 @@ BFRL.Player.prototype.tryMoveInDirection = function(md) {
 	var newKey = newX + "," + newY;
 
 	var moveResult = this._game.getMoveResult(this,newX,newY);
-	if (moveResult.isOpen != true) {
+	if (moveResult.isOpen !== true) {
 		console.log(moveResult);
-		if (moveResult.bumpedEntity != null) {
+		if (moveResult.bumpedEntity !== null) {
 		    this.resolveBump(moveResult.bumpedEntity);
 		} else {
 		    return false;

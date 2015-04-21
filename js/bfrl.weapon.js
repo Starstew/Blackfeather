@@ -22,7 +22,7 @@ BFRL.Weapon = function(x,y) {
 
 	this._glyph = def.glyph;
 	this._name = def.label;
-}
+};
 BFRL.Weapon.extend(BFRL.Pobj);
 
 /* setWeaponType

@@ -10,7 +10,7 @@ BFRL.game = function() {
     this.statusMsg = '';
 
     BFRL.gui.clearLogDisplay();
-}
+};
 
 BFRL.game.prototype = {
     start: function() {
@@ -100,20 +100,21 @@ BFRL.game.prototype = {
 
     drawVisibleMap: function() {
         BFRL.display.clear();
-        for (var key in this.seenMapCells) {
-            var parts = key.split(",");
-            var x = parseInt(parts[0]);
-            var y = parseInt(parts[1]);
-            var fgcolor = "#fff";
-            var bgcolor = (this.seenMapCells[key] == '' ? BFRL.settings.mapWallColorHidden : BFRL.settings.mapFloorColorHidden);
+        var key, x, y, parts, fgcolor, bgcolor;
+        for (key in this.seenMapCells) {
+            parts = key.split(",");
+            x = parseInt(parts[0]);
+            y = parseInt(parts[1]);
+            fgcolor = "#fff";
+            bgcolor = (this.seenMapCells[key] === '' ? BFRL.settings.mapWallColorHidden : BFRL.settings.mapFloorColorHidden);
             BFRL.display.draw(x, y, this.seenMapCells[key], fgcolor, bgcolor);
         }
-        for (var key in this.fovMapCells) {
-            var parts = key.split(",");
-            var x = parseInt(parts[0]);
-            var y = parseInt(parts[1]);
-            var fgcolor = "#fff";
-            var bgcolor = (this.fovMapCells[key] == '' ? BFRL.settings.mapWallColor : BFRL.settings.mapFloorColors.random());
+        for (key in this.fovMapCells) {
+            parts = key.split(",");
+            x = parseInt(parts[0]);
+            y = parseInt(parts[1]);
+            fgcolor = "#fff";
+            bgcolor = (this.fovMapCells[key] === '' ? BFRL.settings.mapWallColor : BFRL.settings.mapFloorColors.random());
             BFRL.display.draw(x, y, this.fovMapCells[key], fgcolor, bgcolor);
 
             // pobj on it?
@@ -161,11 +162,11 @@ BFRL.game.prototype = {
     getMoveResult: function(pobj, x, y) {
         var newKey = x + "," + y;
         var e_array = this.map.pobjCells[newKey];
-        var ae = undefined;
+        var ae;
         if (e_array && e_array.length > 0) {
             var len = e_array.length;
             for (var i = len - 1; i >= 0; i--) { // go in reverse to get "top" entity
-                if (e_array[i].isPassable == false) {
+                if (e_array[i].isPassable === false) {
                     ae = e_array[i];
                     break;
                 }
@@ -184,7 +185,7 @@ BFRL.game.prototype = {
                 isOpen: false,
                 bumpedEntity: null
             });
-        }; // can't move to that coord
+        } // can't move to that coord
 
         return ({
             isOpen: true
@@ -197,4 +198,4 @@ BFRL.game.prototype = {
         }
         this.statusMsg += msg;
     }
-}
+};
