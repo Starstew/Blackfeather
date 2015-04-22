@@ -145,7 +145,7 @@
 
 			var passableCallback = function(x,y) {
 				var xy_key = x+","+y;
-				var map = BFRL.curGame.map;
+				var map = BFRL.current_game.map;
 				var canPass = (xy_key in map.cells); // is an actual map location
 				
 				if (canPass === true && map.pobjCells && map.pobjCells[xy_key]) { // can pass over all objects in that space
@@ -184,8 +184,8 @@
 			// check if in FOV
 			var lightPasses = function(x, y) {
 				var key = x+","+y;
-				if (key in BFRL.curGame.map.cells) { // is part of the map
-					return (BFRL.curGame.map.cells[key].length > 0);
+				if (key in BFRL.current_game.map.cells) { // is part of the map
+					return (BFRL.current_game.map.cells[key].length > 0);
 				}
 				return false;
 			};
@@ -193,7 +193,7 @@
 			var fov_cells = {};
 			fov.compute(parseInt(fxy[0]), parseInt(fxy[1]), range, function(x, y, r, visibility) {
 				var key = x+","+y;
-				fov_cells[key] = BFRL.curGame.map.cells[key];
+				fov_cells[key] = BFRL.current_game.map.cells[key];
 			 	if (key == txy) {
 			 		isInFov = true;
 			 	}
@@ -206,7 +206,7 @@
 					var pxy = path[i][0] + "," + path[i][1];
 					var glyph = ".";
 					if (this.pobjCells && this.pobjCells[pxy]) {
-						glyph = (this.pobjCells[pxy][0]._glyph || "*");
+						glyph = (this.pobjCells[pxy][0].glyph || "*");
 					}
 					BFRL.display.draw(path[i][0], path[i][1], glyph, '#ff0', '#000');
 				}

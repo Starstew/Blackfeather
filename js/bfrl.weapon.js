@@ -20,8 +20,8 @@ BFRL.Weapon = function(x,y) {
 	this.damageRange = def.damageRange;
 	this.range = (def.range ? def.range : 1); // 1 == melee
 
-	this._glyph = def.glyph;
-	this._name = def.label;
+	this.glyph = def.glyph;
+	this.display_name = def.label;
 };
 BFRL.Weapon.extend(BFRL.Pobj);
 
@@ -71,6 +71,6 @@ BFRL.WeaponArbitrary = function(dmgMin,dmgMax,dmgType,wpName) {
 	// for when we just want to give a monster or something an innate weapon
 	this.damageType = dmgType;
 	this.damageRange = [dmgMin,dmgMax];
-	this._name = wpName;
+	this.display_name = wpName;
 };
 BFRL.WeaponArbitrary.prototype.inflictDamage = BFRL.Weapon.prototype.inflictDamage;

@@ -1,49 +1,50 @@
-BFRL.game = function() {
-	// blank all state vars
+BFRL.Game = function() {
     window.clearSubscribers();
-    this.fovMapCells = [];
-    this.seenMapCells = [];
+
+    // init variables
+    this.fov_cells_list = [];
+    this.seen_cells_list = [];
     this.map = {};
     this.engine = null;
     this.player = null;
-    this._scheduler = null;
-    this.statusMsg = '';
+    this.scheduler = null;
+    this.status_message = '';
 
     BFRL.gui.clearLogDisplay();
 };
 
-BFRL.game.prototype = {
-    start: function() {
-        this._scheduler = new ROT.Scheduler.Speed();
+BFRL.Game.prototype = {
+    "start": function() {
+        this.scheduler = new ROT.Scheduler.Speed();
 
         // go to first map
         this.depth = 0;
         this.delveDeeper();
 
-        this.engine = new ROT.Engine(this._scheduler);
+        this.engine = new ROT.Engine(this.scheduler);
         this.engine.start();
     },
 
-    _generateMap: function() {
+    "generateMap": function() {
         this.map = new BFRL.Map();
         this.map._addEntranceAndExit();
     },
 
-    delveDeeper: function() {
+    "delveDeeper": function() {
         window.clearSubscribers();
         if (this.engine) {
             this.engine.lock();
         }
 
-        this._scheduler.clear();
-        this.seenMapCells = [];
-        this.fovMapCells = [];
+        this.scheduler.clear();
+        this.seen_cells_list = [];
+        this.fov_cells_list = [];
 
         // increment depth
         this.depth += 1;
 
         // create new map
-        this._generateMap();
+        this.generateMap();
 
         // place player
         if (!this.player) {
@@ -60,7 +61,7 @@ BFRL.game.prototype = {
         }
         var relo = [parseInt(this.map.entrance._x), parseInt(this.map.entrance._y)];
         this.player.relocate(relo[0], relo[1]);
-        this._scheduler.add(this.player, true);
+        this.scheduler.add(this.player, true);
 
         // populate with items
         // TODO
@@ -77,45 +78,46 @@ BFRL.game.prototype = {
         }
     },
 
-    populateMonsters: function(difficulty_quota) {
-        var maxTries = 1000;
-        var halfquota = Math.floor(difficulty_quota * 0.5);
+    "populateMonsters": function(difficulty_quota) {
+        var max_tries = 1000;
+        var half_quota = Math.floor(difficulty_quota * 0.5);
+
         // keep adding monsters until quota is exceeded (or we reach 1000 tries)
         var diffcount = 0;
-        for (var i = 0; i < maxTries; i++) {
+        for (var i = 0; i < max_tries; i++) {
             var mt = BFRL.npcTypes.random();
             var remaining = difficulty_quota - diffcount;
             var mt_diff = mt.prototype.definition.difficulty;
-            if (mt_diff > (remaining * 1.5) || mt.prototype.definition.difficulty > halfquota) {
-                continue;
+            if (mt_diff > (remaining * 1.5) || mt.prototype.definition.difficulty > half_quota) {
+                continue; // keep the harder monsters from soaking up slots
             }
             var mon = this.spawnAndPlaceBeing(mt, this.map.freeCells);
-            this._scheduler.add(mon, true);
-            diffcount += mon._difficulty;
+            this.scheduler.add(mon, true);
+            diffcount += mon.difficulty_rating;
             if (diffcount >= difficulty_quota) {
                 break;
             }
         }
     },
 
-    drawVisibleMap: function() {
+    "drawVisibleMap": function() {
         BFRL.display.clear();
         var key, x, y, parts, fgcolor, bgcolor;
-        for (key in this.seenMapCells) {
+        for (key in this.seen_cells_list) {
             parts = key.split(",");
             x = parseInt(parts[0]);
             y = parseInt(parts[1]);
             fgcolor = "#fff";
-            bgcolor = (this.seenMapCells[key] === '' ? BFRL.settings.mapWallColorHidden : BFRL.settings.mapFloorColorHidden);
-            BFRL.display.draw(x, y, this.seenMapCells[key], fgcolor, bgcolor);
+            bgcolor = (this.seen_cells_list[key] === '' ? BFRL.settings.mapWallColorHidden : BFRL.settings.mapFloorColorHidden);
+            BFRL.display.draw(x, y, this.seen_cells_list[key], fgcolor, bgcolor);
         }
-        for (key in this.fovMapCells) {
+        for (key in this.fov_cells_list) {
             parts = key.split(",");
             x = parseInt(parts[0]);
             y = parseInt(parts[1]);
             fgcolor = "#fff";
-            bgcolor = (this.fovMapCells[key] === '' ? BFRL.settings.mapWallColor : BFRL.settings.mapFloorColors.random());
-            BFRL.display.draw(x, y, this.fovMapCells[key], fgcolor, bgcolor);
+            bgcolor = (this.fov_cells_list[key] === '' ? BFRL.settings.mapWallColor : BFRL.settings.mapFloorColors.random());
+            BFRL.display.draw(x, y, this.fov_cells_list[key], fgcolor, bgcolor);
 
             // pobj on it?
             if (this.map.pobjCells[key]) {
@@ -125,7 +127,7 @@ BFRL.game.prototype = {
         }
     },
 
-    spawnAndPlaceBeing: function(what, freeCells) {
+    "spawnAndPlaceBeing": function(what, freeCells) {
         var index = Math.floor(ROT.RNG.getUniform() * freeCells.length);
         var key = freeCells.splice(index, 1)[0];
         var parts = key.split(",");
@@ -135,14 +137,14 @@ BFRL.game.prototype = {
     },
 
     /* remove object from map, scheduler, and pubsub */
-    removePobj: function(pobj) {
+    "removePobj": function(pobj) {
         if (!pobj) {
             return;
         }
 
         // remove from scheduling
-        if (this._scheduler) {
-            this._scheduler.remove(pobj);
+        if (this.scheduler) {
+            this.scheduler.remove(pobj);
         }
 
         // filter from list of objects
@@ -159,7 +161,7 @@ BFRL.game.prototype = {
 
     /* Get what would be the result of a move of 'pobj' into coordinate 'x,y'
 		Returns object that has property 'isOpen' (Boolean) and an optional 'bumpedEntity' */
-    getMoveResult: function(pobj, x, y) {
+    "getMoveResult": function(pobj, x, y) {
         var newKey = x + "," + y;
         var e_array = this.map.pobjCells[newKey];
         var ae;
@@ -192,10 +194,10 @@ BFRL.game.prototype = {
         });
     },
 
-    addLogMessage: function(msg) {
-        if (this.statusMsg.length > 0) {
-            this.statusMsg += "; ";
+    "addLogMessage": function(msg) {
+        if (this.status_message.length > 0) {
+            this.status_message += "; ";
         }
-        this.statusMsg += msg;
+        this.status_message += msg;
     }
 };

@@ -4,7 +4,7 @@
 BFRL.Pobj = function(x,y) {
 	this._x = x;
 	this._y = y;
-	this._game = BFRL.curGame;
+	this.related_game = BFRL.current_game;
 
 	if (this.addToPobjList) {
 		this.addToPobjList();
@@ -17,7 +17,7 @@ BFRL.Pobj.prototype = {
 	objectId: undefined,
 	damageModifiers: {},
 	_draw: function() {
-		BFRL.display.draw(this.getX(), this.getY(), this._glyph, this._glyphColor, BFRL.settings.mapFloorColor);
+		BFRL.display.draw(this.getX(), this.getY(), this.glyph, this.glyph_color, BFRL.settings.mapFloorColor);
 	},
 	getX: function() { return parseInt(this._x); },
 	getY: function() { return parseInt(this._y); },
@@ -33,12 +33,12 @@ BFRL.Pobj.prototype = {
 		this._x = parseInt(tx);
 		this._y = parseInt(ty);
 
-		this._game.map.updateObjectMap();
+		this.related_game.map.updateObjectMap();
 	},
 
 	addToPobjList : function() {
-		this._game.map.pobjList.push(this);
-		this.objectId = 'pobj_' + this._game.map.pobjCounter++;
+		this.related_game.map.pobjList.push(this);
+		this.objectId = 'pobj_' + this.related_game.map.pobjCounter++;
 	},
 
 	addTrait: function(traitName, traitConfig) {
@@ -64,9 +64,9 @@ BFRL.Pobj.prototype = {
 BFRL.worldPobjs.Egress = function(x,y,et) {
 	BFRL.Pobj.call(this,x,y);
 	this.isPassable = true;
-	this._glyph = (et == BFRL.EGRESS_ENTRANCE) ? "<" : ">";
-	this._glyphColor = "#111";
-	this._name = (et == BFRL.EGRESS_ENTRANCE) ? "Up" : "Down";
+	this.glyph = (et == BFRL.EGRESS_ENTRANCE) ? "<" : ">";
+	this.glyph_color = "#111";
+	this.display_name = (et == BFRL.EGRESS_ENTRANCE) ? "Up" : "Down";
 };
 BFRL.worldPobjs.Egress.extend(BFRL.Pobj);
 
@@ -74,9 +74,9 @@ BFRL.worldPobjs.Egress.extend(BFRL.Pobj);
 /* GoldPile */
 BFRL.worldPobjs.GoldPile = function(x,y,amount) {
 	BFRL.Pobj.call(this,x,y);
-	this._glyph = "*";
-	this._glyphColor = "#ff0";
-	this._name = "Pile of Gold";
+	this.glyph = "*";
+	this.glyph_color = "#ff0";
+	this.display_name = "Pile of Gold";
 	this.amount = amount;
 	this.isPassable = true;
 };
@@ -85,21 +85,21 @@ BFRL.worldPobjs.GoldPile.prototype.onPickup = function(pickerUpper) {
 	pickerUpper._gold = Math.max(0,pickerUpper._gold);
 	pickerUpper._gold += this.amount;
 	window.publish("log_message",this,"Picked up " + this.amount + " gold");
-	this._game.removePobj(this);
+	this.related_game.removePobj(this);
 };
 
 BFRL.worldPobjs.BlackFeather = function(x,y,factor) {
 	BFRL.Pobj.call(this,x,y);
-	this._glyphColor = "#dd0";
-	this._glyph = "~";
-	this._name = "Black Feather";
+	this.glyph_color = "#dd0";
+	this.glyph = "~";
+	this.display_name = "Black Feather";
 	this.isPassable = true;
 };
 BFRL.worldPobjs.BlackFeather.extend(BFRL.Pobj);
 BFRL.worldPobjs.BlackFeather.prototype.onPickup = function(pickerUpper) {
-	if (pickerUpper == this._game.player) {
+	if (pickerUpper == this.related_game.player) {
 		var msg = "YOU FOUND THE BLACK FEATHER!\nIs it all you'd hoped for?\nAnyway, you did what you came here to do.\nTake your " + 
-			this._game.player._gold + " gold and get out of here.";
+			this.related_game.player._gold + " gold and get out of here.";
 		BFRL.gui.showGameOver(msg);
 		return;
 	}
@@ -107,28 +107,28 @@ BFRL.worldPobjs.BlackFeather.prototype.onPickup = function(pickerUpper) {
 
 BFRL.worldPobjs.Mushroom = function(x,y,factor) {
 	BFRL.Pobj.call(this,x,y);
-	this._glyphColor = "#337";
-	this._glyph = "^";
-	this._name = "Mushroom";
+	this.glyph_color = "#337";
+	this.glyph = "^";
+	this.display_name = "Mushroom";
 	this.isPassable = true;
 	this.power = factor;
 };
 BFRL.worldPobjs.Mushroom.extend(BFRL.Pobj);
 BFRL.worldPobjs.Mushroom.prototype.onPickup = function(pickerUpper) {
-	pickerUpper._hitpointsMax += Math.floor(this.power * 0.1);
+	pickerUpper.hitpoints_max += Math.floor(this.power * 0.1);
 	pickerUpper.gainHitpoints(this.power,"by eating a yummy mushroom");
-	this._game.removePobj(this);
+	this.related_game.removePobj(this);
 };
 
 BFRL.worldPobjs.Tooth = function(x,y,factor) {
 	BFRL.Pobj.call(this,x,y);
-	this._glyphColor = "#fff";
-	this._glyph = "=";
-	this._name = "Tooth";
+	this.glyph_color = "#fff";
+	this.glyph = "=";
+	this.display_name = "Tooth";
 	this.isPassable = true;
 };
 BFRL.worldPobjs.Tooth.extend(BFRL.Pobj);
 BFRL.worldPobjs.Tooth.prototype.onPickup = function(pickerUpper) {
-	window.publish("log_message",this, pickerUpper._name + " found a tooth.");
-	this._game.removePobj(this);
+	window.publish("log_message",this, pickerUpper.display_name + " found a tooth.");
+	this.related_game.removePobj(this);
 };

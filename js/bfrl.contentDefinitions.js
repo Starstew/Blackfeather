@@ -47,7 +47,7 @@
 	var MonsterManual = {
 		"Artist" : {
 			"glyph":"a",
-			"glyphColor":"#333",
+			"glyph_color":"#333",
 			"species":"Artist",
 			"hitpointsRange":[4,13],
 			"difficulty":2,
@@ -66,7 +66,7 @@
 
 		"Wineboy" : {
 			"glyph":"w",
-			"glyphColor":"#330",
+			"glyph_color":"#330",
 			"species":"Wineboy",
 			"hitpointsRange":[4,13],
 			"difficulty":2,
@@ -84,7 +84,7 @@
 
 		"Orq" : {
 			"glyph":"o",
-			"glyphColor":"#330",
+			"glyph_color":"#330",
 			"species":"Orq",
 			"hitpointsRange":[25,45],
 			"difficulty":6,
@@ -105,7 +105,7 @@
 
 		"Lion" : {
 			"glyph":"l",
-			"glyphColor":"#000",
+			"glyph_color":"#000",
 			"species":"Lion",
 			"hitpointsRange":[25,45],
 			"difficulty":5,
@@ -121,7 +121,7 @@
 
 		"Halfling" : {
 			"glyph":"h",
-			"glyphColor":"#151",
+			"glyph_color":"#151",
 			"species":"Hipster Halfling",
 			"hitpointsRange":[11,30],
 			"difficulty":4,
@@ -140,7 +140,7 @@
 
 		"Bob" : {
 			"glyph":"b",
-			"glyphColor":"#005",
+			"glyph_color":"#005",
 			"species":"Bob",
 			"hitpointsRange":[12,36],
 			"difficulty":8,
@@ -159,7 +159,7 @@
 
 		"Goblin" : {
 			"glyph":"g",
-			"glyphColor":"#050",
+			"glyph_color":"#050",
 			"species":"Goblin",
 			"speed":1.5,
 			"hitpointsRange":[5,30],
@@ -180,7 +180,7 @@
 
 		"TreeGnome" : {
 			"glyph":"t",
-			"glyphColor":"#555",
+			"glyph_color":"#555",
 			"species":"Tree Gnome",
 			"hitpointsRange":[10,40],
 			"difficulty":10,
@@ -199,7 +199,7 @@
 
 		"Shrub" : {
 			"glyph":"s",
-			"glyphColor":"#252",
+			"glyph_color":"#252",
 			"species":"Shrub",
 			"hitpointsRange":[20,40],
 			"difficulty":12,
@@ -220,7 +220,7 @@
 
 		"Minotaur" : {
 			"glyph":"m",
-			"glyphColor":"#444",
+			"glyph_color":"#444",
 			"species":"Minotaur",
 			"hitpointsRange":[30,60],
 			"difficulty":20,
@@ -241,7 +241,7 @@
 
 		"Grell" : {
 			"glyph":"G",
-			"glyphColor":"#000",
+			"glyph_color":"#000",
 			"species":"Grell",
 			"hitpointsRange":[80,120],
 			"difficulty":70,
@@ -261,7 +261,7 @@
 
 		"Cyclops" : {
 			"glyph":"C",
-			"glyphColor":"#922",
+			"glyph_color":"#922",
 			"species":"Cyclops",
 			"hitpointsRange":[45,75],
 			"difficulty":40,
@@ -281,7 +281,7 @@
 
 		"Demon" : {
 			"glyph":"D",
-			"glyphColor":"#922",
+			"glyph_color":"#922",
 			"species":"Demon",
 			"hitpointsRange":[60,100],
 			"difficulty":55,

@@ -1,8 +1,8 @@
 BFRL.gui = {
-    msgLog: [],
+    message_log: [],
 
     showAlert: function(alertText, x, y, w, delay, autoContinue) {
-        BFRL.curGame.engine.lock();
+        BFRL.current_game.engine.lock();
         // draw block
         x = x || 2;
         y = y || 2;
@@ -20,7 +20,7 @@ BFRL.gui = {
         if (autoContinue === true) {
             setTimeout(function() {
                 window.addEventListener("keydown", BFRL);
-                BFRL.curGame.engine.unlock();
+                BFRL.current_game.engine.unlock();
             }, delay);
         } else {
             setTimeout(function() {
@@ -30,7 +30,7 @@ BFRL.gui = {
     },
 
     handleEvent: function(e) {
-        BFRL.curGame.engine.unlock();
+        BFRL.current_game.engine.unlock();
         if (this.isWaitingToRestart) {
             this.isWaitingToRestart = false;
             BFRL.startNewGame();
@@ -47,19 +47,18 @@ BFRL.gui = {
     },
 
     clearLogDisplay: function() {
-        document.getElementById('msg_display')
-            .innerHTML = "";
+        document.getElementById('msg_display').innerHTML = "";
     },
 
     refreshLogDisplay: function() {
-        if (BFRL.curGame.statusMsg.length <= 0) {
+        if (BFRL.current_game.status_message.length <= 0) {
             return;
         }
-        this.msgLog.push(BFRL.curGame.statusMsg);
-        BFRL.curGame.statusMsg = '';
+        this.message_log.push(BFRL.current_game.status_message);
+        BFRL.current_game.status_message = '';
 
         var log_excerpt = "";
-        var dlog = this.msgLog.slice(-5);
+        var dlog = this.message_log.slice(-5);
         var len = Math.min(dlog.length, 5);
         dlog.reverse();
         for (var i = 0; i < len; i++) {
@@ -69,33 +68,32 @@ BFRL.gui = {
                 log_excerpt += dlog[i] + "<br>";
             }
         }
-        document.getElementById('msg_display')
-            .innerHTML = log_excerpt;
+        document.getElementById('msg_display').innerHTML = log_excerpt;
     },
 
     refreshStatusDisplay: function() {
-        var player = BFRL.curGame.player;
-        var newhtml = "<span class='player_name'>" + player._name + "</span>";
-        newhtml += "<span class='hitpoints'>[" + player._hitpoints + "/" + player._hitpointsMax + "]</span>";
-        newhtml += "<span class='weapon'>Wielding: " + player.weapon._name + "</span>";
-        newhtml += "<span class='gold'>" + player._gold + "GP</span>";
-        newhtml += "<span class='depth'>Depth: " + BFRL.curGame.depth + "</span>";
-        document.querySelector('#status_display').innerHTML = newhtml;
+        var player = BFRL.current_game.player;
+        var new_html = "<span class='player_name'>" + player.display_name + "</span>";
+        new_html += "<span class='hitpoints'>[" + player.hitpoints + "/" + player.hitpoints_max + "]</span>";
+        new_html += "<span class='weapon'>Wielding: " + player.weapon.display_name + "</span>";
+        new_html += "<span class='gold'>" + player.gold_pieces + "GP</span>";
+        new_html += "<span class='depth'>Depth: " + BFRL.current_game.depth + "</span>";
+        document.querySelector('#status_display').innerHTML = new_html;
     },
 
     refreshFovDisplay: function() {
-        var player = BFRL.curGame.player;
+        var player = BFRL.current_game.player;
         $('#fov_display').empty();
-        var len = player.fovPobjs.length;
+        var len = player.fov_pobjs.length;
         var displayed = 0;
         for (var i = 0; i < len; i++) {
-            var po = player.fovPobjs[i];
+            var po = player.fov_pobjs[i];
             if (po instanceof BFRL.Being === false) {
                 continue;
             } // skip non-Beings for this UI
-            var po_html = $("<div class='fov_item'><span>" + po._glyph + ":" + po._name + "</span></div>");
+            var po_html = $("<div class='fov_item'><span>" + po.glyph + ":" + po.display_name + "</span></div>");
             $('#fov_display').append(po_html);
-            po_html.css('background-image', 'url("imgs/' + po._img + '")');
+            po_html.css('background-image', 'url("imgs/' + po.display_image_file + '")');
             displayed++;
         }
         var imgwidth = Math.floor($('#fov_display')

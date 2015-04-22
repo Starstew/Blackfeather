@@ -3,9 +3,9 @@ BFRL.Player = function(x,y) {
 	BFRL.Being.call(this,x,y);
 
 	// player-specific stuff
-	this._gold = 0;
-	this._name = "Wombat";
-	this._speed = 1; // ROT.js scheduler speed
+	this.gold_pieces = 0;
+	this.display_name = "Wombat";
+	this.scheduler_speed = 1; // ROT.js scheduler speed
 	this._targetCycleOffset = 0; // for cycling through targets of ranged attack
 	this._target = {};
 
@@ -27,7 +27,7 @@ BFRL.Player.extend(BFRL.Being);
 
 BFRL.Player.prototype.definition = {
 	"glyph":"@",
-	"glyphColor":"#ff0",
+	"glyph_color":"#ff0",
 	"species":"Player",
 	"hitpointsRange":[100,100],
 	"difficulty":1,
@@ -44,17 +44,17 @@ BFRL.Player.prototype.doRest = function() {
 };
 
 BFRL.Player.prototype.act = function() {
-	if (this._hitpoints <= 0) {
-		var msg = "You have been killed by " + this._lastDamagedBy._name + "'s " +
-			this._lastDamagedBy.weapon._name + "!\nDepth: " +
-			this._game.depth+"\nGold: " + this._gold;
+	if (this.hitpoints <= 0) {
+		var msg = "You have been killed by " + this.last_damaged_by.display_name + "'s " +
+			this.last_damaged_by.weapon.display_name + "!\nDepth: " +
+			this.related_game.depth+"\nGold: " + this.gold_pieces;
 
 		BFRL.doGameOver(msg);
 		return;
 	}
 
 	// get everything in order to draw the player's fov
-	this._game.map.updateObjectMap();
+	this.related_game.map.updateObjectMap();
 	this.drawFov();
 	this.updateFovPobjs();
 	this._draw();
@@ -67,10 +67,10 @@ BFRL.Player.prototype.act = function() {
 
 BFRL.Player.prototype.drawFov = function() {
 	this.scanFov();
-	this._game.fovMapCells = this.fovMapCells;
-	for (var i in this.fovMapCells) {
-		if (typeof this.fovMapCells[i] == 'function') { continue; }
-		var mc = this.fovMapCells[i];
+	this.related_game.fov_cells_list = this.fov_cells_list;
+	for (var i in this.fov_cells_list) {
+		if (typeof this.fov_cells_list[i] == 'function') { continue; }
+		var mc = this.fov_cells_list[i];
 		if (mc) {
 			if (mc == ".") {
 				mc = ' ';
@@ -79,10 +79,10 @@ BFRL.Player.prototype.drawFov = function() {
 			mc = '';
 		}
 		//mc = (mc ? ' ':'');
-		this._game.seenMapCells[i] = mc;
-		this._game.fovMapCells[i] = mc;
+		this.related_game.seen_cells_list[i] = mc;
+		this.related_game.fov_cells_list[i] = mc;
 	}
-	this._game.drawVisibleMap();
+	this.related_game.drawVisibleMap();
 };
 
 BFRL.Player.prototype.resolveBump = function(pobj) {
@@ -103,32 +103,32 @@ BFRL.Player.prototype.resolveColocation = function() {
 	// check the space we're standing on for ispassable items we might want to pick up, or get trapped by, etc.
 	var x = this._x;
 	var y = this._y;
-	var colo_objs = this._game.map.getObjectsAtLoc(x,y,this);
+	var colo_objs = this.related_game.map.getObjectsAtLoc(x,y,this);
 	var len = colo_objs.length;
 	for (var i = 0; i < len; i++) {
 		var cobj = colo_objs[i];
 		if (cobj.onPickup) {
 			cobj.onPickup(this);
 		}
-		if (cobj == this._game.map.exit) {
-			this._game.delveDeeper();
+		if (cobj == this.related_game.map.exit) {
+			this.related_game.delveDeeper();
 		}
 	}
 };
 
 BFRL.Player.prototype.showLosToNextTarget = function(offset) {
 	// only if something's in FOV
-	if (this.fovPobjs.length > 0) {
+	if (this.fov_pobjs.length > 0) {
 		offset = offset || 0;
-		var fov_len = this.fovPobjs.length;
+		var fov_len = this.fov_pobjs.length;
 		this._targetCycleOffset = Math.abs((this._targetCycleOffset + offset)%fov_len);
 		var fxy = [this.getX(),this.getY()];
-		var target = this.fovPobjs[this._targetCycleOffset];
+		var target = this.fov_pobjs[this._targetCycleOffset];
 		this._target = target; // remember our target for ranged attack purposes
 		var txy = [target.getX(),target.getY()];
 		var atk_range = 10; // TODO ... get from weapon + modifiers
 		this.drawFov();
-		BFRL.curGame.map.showLineOfSight(fxy,txy,atk_range);
+		BFRL.current_game.map.showLineOfSight(fxy,txy,atk_range);
 	}
 };
 
@@ -138,9 +138,8 @@ BFRL.Player.prototype.tryMoveInDirection = function(md) {
 	var newY = this._y + diff[1];
 	var newKey = newX + "," + newY;
 
-	var moveResult = this._game.getMoveResult(this,newX,newY);
+	var moveResult = this.related_game.getMoveResult(this,newX,newY);
 	if (moveResult.isOpen !== true) {
-		console.log(moveResult);
 		if (moveResult.bumpedEntity !== null) {
 		    this.resolveBump(moveResult.bumpedEntity);
 		} else {

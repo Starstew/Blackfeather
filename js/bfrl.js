@@ -65,7 +65,6 @@ var BFRL = BFRL || {
      },
 
     // vars
-    game: null, // "Game" currently in progress
     npcManifest: {}, // JSON of monsters/npc definitions
     weaponManifest: {}, // JSON of all p(laceable)objs definitions
     npcTypes: [], // list of all npc object constructors (built from defs)
@@ -91,7 +90,7 @@ var BFRL = BFRL || {
     handleMessage: function(message, publisher, data) {
         switch (message) {
             case "log_message":
-                this.curGame.addLogMessage(data);
+                this.current_game.addLogMessage(data);
                 break;
             default:
                 break;
@@ -99,8 +98,8 @@ var BFRL = BFRL || {
     },
 
     startNewGame: function() {
-        this.curGame = new BFRL.game();
-        this.curGame.start();
+        this.current_game = new BFRL.Game();
+        this.current_game.start();
         BFRL.gui.showAlert("So begins your quest for the Black Feather...");
     },
 
@@ -146,7 +145,7 @@ var BFRL = BFRL || {
 
     handleEvent: function(e) {
         var code = e.keyCode;
-        var plyr = this.curGame.player;
+        var plyr = this.current_game.player;
         switch (this.uiMode) {
             /** Main mode of movement/acting **/
             case BFRL.UIMODE_PLAYER_ACT:
@@ -169,7 +168,7 @@ var BFRL = BFRL || {
                         break;
                 }
                 window.removeEventListener("keydown", this);
-                this.curGame.engine.unlock();
+                this.current_game.engine.unlock();
                 break;
 
             /** Targeting a shot/spell/throw **/
@@ -200,12 +199,12 @@ var BFRL = BFRL || {
 
     waitForNextPlayerInput: function() {
         // stop the engine and wait for next input
-        this.curGame.engine.lock();
+        this.current_game.engine.lock();
         window.addEventListener("keydown",this);
     },
 
     doGameOver: function(msg) {
-        this.curGame.engine.lock();
+        this.current_game.engine.lock();
         this.display.clear();
         this.gui.showAlert(msg, 5, 5, 50, 3000);
         this.gui.isWaitingToRestart = true;

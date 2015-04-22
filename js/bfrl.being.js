@@ -1,44 +1,34 @@
 /* Being (Pobj) */
 BFRL.Being = function(x,y) {
 	BFRL.Pobj.call(this,x,y);
-	this.fovMapCells = [];
-	this.fovPobjs = [];
-	this.pathTo = []; // xy this being is moving toward
-	this.locMemory = []; // remember location where target seen
+
+	// init variables
+	this.fov_cells_list = []; // map cells in field of view
+	this.fov_pobjs = []; // pobjs in field of view
+	this.path_target = []; // target xy this being is moving toward
+	this.path_target_location_lastseen = []; // remember location where target seen
 	this.disposition = BFRL.DISP_NEUTRAL;
 	this.equipment = {};
 
+	// set variables based on definition
 	var def = this.definition; // definition from prototype
+	this.last_damaged_by = null;
+	this.hitpoints_max = Math.ceil(ROT.RNG.getUniform() * (def.hitpointsRange[1] - def.hitpointsRange[0])) + def.hitpointsRange[0];
+	this.hitpoints = this.hitpoints_max;
+	this.difficulty_rating = def.difficulty;
+	this.display_name = def.species;
+	this.display_image_file = def.img;
+	this.glyph = def.glyph;
+	this.glyph_color = def.glyph_color;
+	this.scheduler_speed = def.speed || 1;
+	this.fov_range = def.fovFactor * BFRL.settings.fovBase;
 
-	this._lastDamagedBy = null;
-	this._hitpointsMax = Math.ceil(ROT.RNG.getUniform() * (def.hitpointsRange[1] - def.hitpointsRange[0])) + def.hitpointsRange[0];
-	this._hitpoints = this._hitpointsMax;
-	this._difficulty = def.difficulty;
-	this._name = def.species;
-	this._img = def.img;
-	this._glyph = def.glyph;
-	this._glyphColor = def.glyphColor;
 	this.pickWeapon(def.weaponPool);
-	this._speed = def.speed || 1;
-	this.fovRange = def.fovFactor * BFRL.settings.fovBase;
-	var loot_choice = (def.lootPool && def.lootPool.length > 0) ? def.lootPool.random() : null;
-	this.loot = (loot_choice) ? {type:BFRL.worldPobjs[loot_choice[0]], modifier:loot_choice[1]} : null;
+	this.pickLoot(def.lootPool);
+	this.unpackTraits(def.traits);
 
-	this.aggressionTarget = this._game.player; // temp for expediency, TODO:dynamic targets
+	this.aggressionTarget = this.related_game.player; // temp for expediency, TODO:dynamic targets
 	
-	// config traits
-	this.traits = {};
-	if (def.traits) {
-		for (var t in def.traits) {
-			if (BFRL.Traits[t]) {
-				this.traits[t] = def.traits[t];
-				if (BFRL.Traits[t].config) {
-					BFRL.Traits[t].config(this,def.traits[t]);
-				}
-			}
-		}
-	}
-
 	this.subscribeToMessages();
 };
 
@@ -49,35 +39,35 @@ BFRL.Being.prototype.subscribeToMessages = function() {
 };
 
 BFRL.Being.prototype.getSpeed = function() {
-	return this._speed;
+	return this.scheduler_speed;
 };
 
 BFRL.Being.prototype.scanFov = function() {
-	this.fovMapCells = [];
+	this.fov_cells_list = [];
 	var lightPasses = function(x, y) {
 		var key = x+","+y;
-		if (key in BFRL.curGame.map.cells) { // is part of the map
-			return (BFRL.curGame.map.cells[key].length > 0);
+		if (key in BFRL.current_game.map.cells) { // is part of the map
+			return (BFRL.current_game.map.cells[key].length > 0);
 		}
 		return false;
 	};
 	var fov = new ROT.FOV.RecursiveShadowcasting(lightPasses);
-	var tbfov = this.fovMapCells;
-	fov.compute(this._x, this._y, this.fovRange, function(x, y, r, visibility) {
+	var tbfov = this.fov_cells_list;
+	fov.compute(this._x, this._y, this.fov_range, function(x, y, r, visibility) {
 		var key = x+","+y;
-	 	tbfov[key] = BFRL.curGame.map.cells[key];
+	 	tbfov[key] = BFRL.current_game.map.cells[key];
 	});
 };
 
 BFRL.Being.prototype.updateFovPobjs = function() {
-	this.fovPobjs = [];
+	this.fov_pobjs = [];
 	// loop through map's pobjs, compare to fov map points
-	var len = this._game.map.pobjList.length;
+	var len = this.related_game.map.pobjList.length;
 	for (var i = 0; i < len; i++) {
-		var po = this._game.map.pobjList[i];
+		var po = this.related_game.map.pobjList[i];
 		var key = po.getX() + "," + po.getY();
-		if(this.fovMapCells[key] && !this.fovPobjs[key] && this != po) {
-			this.fovPobjs.push(po);
+		if(this.fov_cells_list[key] && !this.fov_pobjs[key] && this != po) {
+			this.fov_pobjs.push(po);
 		}
 	}
 };
@@ -93,20 +83,20 @@ BFRL.Being.prototype.handleMessage = function(message, publisher, data) {
 
 BFRL.Being.prototype.receiveDamage = function(dmg, dmgType, dmgInflictor, weapon_name) {
 	// for now, just take damage (nuances, resistances, etc TODO)
-	this._hitpoints -= dmg;
-	this._lastDamagedBy = dmgInflictor;
-	weapon_name = weapon_name || dmgInflictor.weapon._name || 'attack';
-	window.publish('log_message',this,this._name + " takes " + dmg + " damage from " + dmgInflictor._name + "'s " + weapon_name);
+	this.hitpoints -= dmg;
+	this.last_damaged_by = dmgInflictor;
+	weapon_name = weapon_name || dmgInflictor.weapon.display_name || 'attack';
+	window.publish('log_message',this,this.display_name + " takes " + dmg + " damage from " + dmgInflictor.display_name + "'s " + weapon_name);
 };
 
 BFRL.Being.prototype.gainHitpoints = function(hpgain,msg) {
-	var true_gain = Math.min(hpgain,this._hitpointsMax - this._hitpoints);
-	this._hitpoints += true_gain;
-	window.publish('log_message', this, this._name + " gains " + true_gain + " life " + (msg || ""));
+	var true_gain = Math.min(hpgain,this.hitpoints_max - this.hitpoints);
+	this.hitpoints += true_gain;
+	window.publish('log_message', this, this.display_name + " gains " + true_gain + " life " + (msg || ""));
 };
 
 BFRL.Being.prototype.act = function() {
-	if (this._hitpoints <= 0) {
+	if (this.hitpoints <= 0) {
 		this.resolveDeath();
 	}
 	this.scanFov();
@@ -114,19 +104,19 @@ BFRL.Being.prototype.act = function() {
 };
 
 BFRL.Being.prototype.moveToward = function() {
-	var path = this._game.map.getPath(this._x,this._y,this.pathTo[0],this.pathTo[1],4);
+	var path = this.related_game.map.getPath(this._x,this._y,this.path_target[0],this.path_target[1],4);
 
 	// now check if we bump before actually moving
 	if (path.length < 1) { return; }
 
 	x = path[0][0];
 	y = path[0][1];
-	var moveResult = this._game.getMoveResult(this,x,y);
+	var moveResult = this.related_game.getMoveResult(this,x,y);
 	if (moveResult.isOpen !== true) {
 		if (moveResult.bumpedEntity !== null) {
 			var be = moveResult.bumpedEntity;
 			if (this.resolveBump) { this.resolveBump(be); }
-			this._game.map.updateObjectMap();
+			this.related_game.map.updateObjectMap();
 		}
 	} else {
 		this.relocate(x,y);
@@ -134,10 +124,24 @@ BFRL.Being.prototype.moveToward = function() {
 };
 
 BFRL.Being.prototype.resolveDeath = function() {
-	window.publish('log_message',this,this._name + " slain by " + this._lastDamagedBy._name);
+	window.publish('log_message',this,this.display_name + " slain by " + this.last_damaged_by.display_name);
 	this.doTurn = function(){}; // empty it out to make sure it doesn't do any last gasp stuff
 	this.dropLoot();
-	this._game.removePobj(this);
+	this.related_game.removePobj(this);
+};
+
+BFRL.Being.prototype.unpackTraits = function(trait_list) {
+	this.traits = {};
+	if (trait_list) {
+		for (var t in trait_list) {
+			if (BFRL.Traits[t]) {
+				this.traits[t] = trait_list[t];
+				if (BFRL.Traits[t].config) {
+					BFRL.Traits[t].config(this, trait_list[t]);
+				}
+			}
+		}
+	}
 };
 
 BFRL.Being.prototype.pickWeapon = function(wpool) {
@@ -156,10 +160,15 @@ BFRL.Being.prototype.pickWeapon = function(wpool) {
 	}
 };
 
+BFRL.Being.prototype.pickLoot = function (lpool) {
+	var loot_choice = (lpool && lpool.length > 0) ? lpool.random() : null;
+	this.loot = (loot_choice) ? {type:BFRL.worldPobjs[loot_choice[0]], modifier:loot_choice[1]} : null;
+};
+
 BFRL.Being.prototype.dropLoot = function() {
 	if (this.loot && this.loot.type) {
 		var l = new this.loot.type(this._x,this._y,this.loot.modifier);
-		window.publish('log_message',this,this._name + " dropped a " + l._name);
+		window.publish('log_message',this,this.display_name + " dropped a " + l.display_name);
 	}
 };
 
@@ -167,19 +176,19 @@ BFRL.Being.prototype.doTurn = function() {
 	// check view object for "aggressionTarget"
 	this.updateFovPobjs();
 	var xy;
-	for (var i = 0; i < this.fovPobjs.length; i++) {
-		var fovobj = this.fovPobjs[i];
+	for (var i = 0; i < this.fov_pobjs.length; i++) {
+		var fovobj = this.fov_pobjs[i];
 		if (fovobj == this.aggressionTarget) {
 			xy = [fovobj.getX(),fovobj.getY()];
-			this.locMemory[fovobj.objectId] = [fovobj,xy];
+			this.path_target_location_lastseen[fovobj.objectId] = [fovobj,xy];
 			break;
 		}
 	}
 	// go toward last known position of player (if ever seen)
 	var gpid = this.aggressionTarget.objectId;
-	if (this.locMemory[gpid]) {
-		xy = this.locMemory[gpid][1];
-		this.pathTo = [xy[0],xy[1]];
+	if (this.path_target_location_lastseen[gpid]) {
+		xy = this.path_target_location_lastseen[gpid][1];
+		this.path_target = [xy[0],xy[1]];
 		this.moveToward();
 	}
 };
@@ -189,12 +198,12 @@ BFRL.Being.prototype.resolveBump = function(be) {
 	if (be == this.aggressionTarget) {
 		var dmg = this.weapon.inflictDamage(be,this);
 		window.publish("atk_" + this.objectId, this, {'dmg':dmg,'wielder':this}); // pubsub event for an attack taking place
-		window.publish("dmg_" + be.objectId, this, {'dmg':dmg, 'dmgType':this.weapon.damageType, 'weapon_name':this.weapon._name}); // pubsub for damage being done
+		window.publish("dmg_" + be.objectId, this, {'dmg':dmg, 'dmgType':this.weapon.damageType, 'weapon_name':this.weapon.display_name}); // pubsub for damage being done
 	}
 };
 
 BFRL.Being.prototype.doRangedAttack = function() {
-	if (!this._target || !this._target._hitpoints) {
+	if (!this._target || !this._target.hitpoints) {
 		return;
 	}
 
@@ -202,7 +211,7 @@ BFRL.Being.prototype.doRangedAttack = function() {
 		// TODO: discern what type of ranged attack is happening (bow vs. sling vs. staff vs. throw, etc.)
 		var missile = new BFRL.weaponManifest.Arrow(0,0,true);
 		var dmg = missile.inflictDamage(this._target,this);
-		window.publish("dmg_" + this._target.objectId, this, {'dmg':dmg, 'dmgType':missile.damageType,'weapon_name':missile._name}); // pubsub for damage being done
+		window.publish("dmg_" + this._target.objectId, this, {'dmg':dmg, 'dmgType':missile.damageType,'weapon_name':missile.display_name}); // pubsub for damage being done
 		this.resolveAttack(this._target);
 	}
 };
