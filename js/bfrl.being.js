@@ -27,7 +27,7 @@ BFRL.Being = function(x,y) {
 	this.pickLoot(def.lootPool);
 	this.unpackTraits(def.traits);
 
-	this.aggressionTarget = this.related_game.player; // temp for expediency, TODO:dynamic targets
+	this.aggression_target = this.related_game.player; // temp for expediency, TODO:dynamic targets
 	
 	this.subscribeToMessages();
 };
@@ -62,9 +62,9 @@ BFRL.Being.prototype.scanFov = function() {
 BFRL.Being.prototype.updateFovPobjs = function() {
 	this.fov_pobjs = [];
 	// loop through map's pobjs, compare to fov map points
-	var len = this.related_game.map.pobjList.length;
+	var len = this.related_game.map.pobj_list.length;
 	for (var i = 0; i < len; i++) {
-		var po = this.related_game.map.pobjList[i];
+		var po = this.related_game.map.pobj_list[i];
 		var key = po.getX() + "," + po.getY();
 		if(this.fov_cells_list[key] && !this.fov_pobjs[key] && this != po) {
 			this.fov_pobjs.push(po);
@@ -134,10 +134,10 @@ BFRL.Being.prototype.unpackTraits = function(trait_list) {
 	this.traits = {};
 	if (trait_list) {
 		for (var t in trait_list) {
-			if (BFRL.Traits[t]) {
+			if (BFRL.traits[t]) {
 				this.traits[t] = trait_list[t];
-				if (BFRL.Traits[t].config) {
-					BFRL.Traits[t].config(this, trait_list[t]);
+				if (BFRL.traits[t].config) {
+					BFRL.traits[t].config(this, trait_list[t]);
 				}
 			}
 		}
@@ -151,7 +151,7 @@ BFRL.Being.prototype.pickWeapon = function(wpool) {
 		var args = choice[1];
 		this.weapon = new BFRL.WeaponArbitrary(args[0],args[1], BFRL['DMGTYPE_' + args[2]],args[3]);
 	} else {
-		this.weapon = new BFRL.weaponManifest[rnd_weapon]();
+		this.weapon = new BFRL.weapon_manifest[rnd_weapon]();
 	}
 	if (this.weapon.attackMode == BFRL.ATTACKMODE_RANGED) {
 		this.equipment.ranged = this.weapon;
@@ -173,19 +173,19 @@ BFRL.Being.prototype.dropLoot = function() {
 };
 
 BFRL.Being.prototype.doTurn = function() {
-	// check view object for "aggressionTarget"
+	// check view object for "aggression_target"
 	this.updateFovPobjs();
 	var xy;
 	for (var i = 0; i < this.fov_pobjs.length; i++) {
 		var fovobj = this.fov_pobjs[i];
-		if (fovobj == this.aggressionTarget) {
+		if (fovobj == this.aggression_target) {
 			xy = [fovobj.getX(),fovobj.getY()];
 			this.path_target_location_lastseen[fovobj.objectId] = [fovobj,xy];
 			break;
 		}
 	}
 	// go toward last known position of player (if ever seen)
-	var gpid = this.aggressionTarget.objectId;
+	var gpid = this.aggression_target.objectId;
 	if (this.path_target_location_lastseen[gpid]) {
 		xy = this.path_target_location_lastseen[gpid][1];
 		this.path_target = [xy[0],xy[1]];
@@ -195,7 +195,7 @@ BFRL.Being.prototype.doTurn = function() {
 
 BFRL.Being.prototype.resolveBump = function(be) {
 	// TODO generalize to be able to attack whatever is enemy/target
-	if (be == this.aggressionTarget) {
+	if (be == this.aggression_target) {
 		var dmg = this.weapon.inflictDamage(be,this);
 		window.publish("atk_" + this.objectId, this, {'dmg':dmg,'wielder':this}); // pubsub event for an attack taking place
 		window.publish("dmg_" + be.objectId, this, {'dmg':dmg, 'dmgType':this.weapon.damageType, 'weapon_name':this.weapon.display_name}); // pubsub for damage being done
@@ -203,15 +203,15 @@ BFRL.Being.prototype.resolveBump = function(be) {
 };
 
 BFRL.Being.prototype.doRangedAttack = function() {
-	if (!this._target || !this._target.hitpoints) {
+	if (!this.ranged_target || !this.ranged_target.hitpoints) {
 		return;
 	}
 
 	if (this.equipment.ranged && this.equipment.ranged !== null) {
 		// TODO: discern what type of ranged attack is happening (bow vs. sling vs. staff vs. throw, etc.)
-		var missile = new BFRL.weaponManifest.Arrow(0,0,true);
-		var dmg = missile.inflictDamage(this._target,this);
-		window.publish("dmg_" + this._target.objectId, this, {'dmg':dmg, 'dmgType':missile.damageType,'weapon_name':missile.display_name}); // pubsub for damage being done
-		this.resolveAttack(this._target);
+		var missile = new BFRL.weapon_manifest.Arrow(0,0,true);
+		var dmg = missile.inflictDamage(this.ranged_target,this);
+		window.publish("dmg_" + this.ranged_target.objectId, this, {'dmg':dmg, 'dmgType':missile.damageType,'weapon_name':missile.display_name}); // pubsub for damage being done
+		this.resolveAttack(this.ranged_target);
 	}
 };

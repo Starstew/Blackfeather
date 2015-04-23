@@ -7,10 +7,10 @@ BFRL.Weapon = function(x,y) {
 	this.traits = {};
 	if (def.traits) {
 		for (var t in def.traits) {
-			if (BFRL.Traits[t]) {
+			if (BFRL.traits[t]) {
 				this.traits[t] = def.traits[t];
-				if (BFRL.Traits[t].config) {
-					BFRL.Traits[t].config(this,def.traits[t]);
+				if (BFRL.traits[t].config) {
+					BFRL.traits[t].config(this,def.traits[t]);
 				}
 			}
 		}

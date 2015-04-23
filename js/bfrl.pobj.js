@@ -37,8 +37,8 @@ BFRL.Pobj.prototype = {
 	},
 
 	addToPobjList : function() {
-		this.related_game.map.pobjList.push(this);
-		this.objectId = 'pobj_' + this.related_game.map.pobjCounter++;
+		this.related_game.map.pobj_list.push(this);
+		this.objectId = 'pobj_' + this.related_game.map.pobj_counter++;
 	},
 
 	addTrait: function(traitName, traitConfig) {

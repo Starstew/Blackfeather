@@ -6,12 +6,12 @@ BFRL.Player = function(x,y) {
 	this.gold_pieces = 0;
 	this.display_name = "Wombat";
 	this.scheduler_speed = 1; // ROT.js scheduler speed
-	this._targetCycleOffset = 0; // for cycling through targets of ranged attack
-	this._target = {};
+	this.target_cycle_offset = 0; // for cycling through targets of ranged attack
+	this.ranged_target = {};
 
 	// equip
-	var sword =	new BFRL.weaponManifest.Sword(0,0,true);
-	var bow = new BFRL.weaponManifest.Bow(0,0,true);
+	var sword =	new BFRL.weapon_manifest.Sword(0,0,true);
+	var bow = new BFRL.weapon_manifest.Bow(0,0,true);
 	this.equipment = {
 		ranged: bow,
 		melee: sword,
@@ -78,7 +78,6 @@ BFRL.Player.prototype.drawFov = function() {
 		} else {
 			mc = '';
 		}
-		//mc = (mc ? ' ':'');
 		this.related_game.seen_cells_list[i] = mc;
 		this.related_game.fov_cells_list[i] = mc;
 	}
@@ -118,17 +117,29 @@ BFRL.Player.prototype.resolveColocation = function() {
 
 BFRL.Player.prototype.showLosToNextTarget = function(offset) {
 	// only if something's in FOV
-	if (this.fov_pobjs.length > 0) {
-		offset = offset || 0;
-		var fov_len = this.fov_pobjs.length;
-		this._targetCycleOffset = Math.abs((this._targetCycleOffset + offset)%fov_len);
-		var fxy = [this.getX(),this.getY()];
-		var target = this.fov_pobjs[this._targetCycleOffset];
-		this._target = target; // remember our target for ranged attack purposes
-		var txy = [target.getX(),target.getY()];
-		var atk_range = 10; // TODO ... get from weapon + modifiers
-		this.drawFov();
-		BFRL.current_game.map.showLineOfSight(fxy,txy,atk_range);
+	var fov_len = (this.fov_pobjs) ? this.fov_pobjs.length : 0;
+	if (fov_len > 0) {
+		// create list of things that are targetable
+		var is_targetable_list = [];
+		for (var i=0; i<fov_len; i++) {
+			if (this.fov_pobjs[i] && this.fov_pobjs[i].hitpoints) {
+				is_targetable_list.push(this.fov_pobjs[i]);
+			}
+		}
+
+		// if anything is targetable, show LOS to next on list (determined by offset)
+		var itl_len = is_targetable_list.length;
+		if (itl_len > 0) {
+			offset = offset || 0;
+			this.target_cycle_offset = Math.abs((this.target_cycle_offset + offset) % itl_len);
+			var target = is_targetable_list[this.target_cycle_offset];
+			this.ranged_target = target; // remember our target for ranged attack purposes
+			var from_xy = [this.getX(),this.getY()];
+			var to_xy = [target.getX(), target.getY()];
+			var atk_range = 10; // TODO ... get from weapon + modifiers
+			this.drawFov();
+			BFRL.current_game.map.showLineOfSight(from_xy, to_xy, atk_range);
+		}
 	}
 };
 

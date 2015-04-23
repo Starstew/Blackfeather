@@ -1,39 +1,39 @@
 /* Map  */
 	BFRL.Map = function() {
 		this.cells = [];
-		this.freeCells = [];
-		this.pobjCells = [];
-		this.pobjList = [];
-		this.pobjCounter = 0;
+		this.free_cells = [];
+		this.pobj_cells = [];
+		this.pobj_list = [];
+		this.pobj_counter = 0;
 
 		this.entrance = '';
 		this.exit = '';
 
-		this._generateCells();
+		this.generateCells();
 	};
 
 	BFRL.Map.prototype = {
-		_generateCells : function() {
+		generateCells : function() {
 			var digger = new ROT.Map.Uniform();
-			digger.create(this._digCallback.bind(this));
+			digger.create(this.digCallback.bind(this));
 		},
 
-		_generateCaCells : function() {
+		generateCaCells : function() {
 			var camap = new ROT.Map.Cellular();
 			camap.randomize(0.9);
 			for (var i=0; i<2; i++) {
-			    camap.create(this._digCallback.bind(this));
+			    camap.create(this.digCallback.bind(this));
 			}
 		},
 
-		_digCallback : function (x, y, value) {
+		digCallback : function (x, y, value) {
 			if (value) { return; }
 			var key = x+","+y;
-			this.freeCells.push(key);
+			this.free_cells.push(key);
 			this.cells[key] = ".";
 		},
 
-		_addEntranceAndExit: function() {
+		addEntranceAndExit: function() {
 			// get list of walls
 			var width = BFRL.display.getOptions().width;
 			var height = BFRL.display.getOptions().height;
@@ -99,20 +99,20 @@
 		},
 
 		updateObjectMap: function() {
-			this.pobjCells = {};
-			for (var i = 0; i < this.pobjList.length; i++) {
-				var po = this.pobjList[i];
+			this.pobj_cells = {};
+			for (var i = 0; i < this.pobj_list.length; i++) {
+				var po = this.pobj_list[i];
 				var pkey = po._x + "," + po._y;
-				this.pobjCells[pkey] = this.pobjCells[pkey] || [];
-				this.pobjCells[pkey].push(po);
+				this.pobj_cells[pkey] = this.pobj_cells[pkey] || [];
+				this.pobj_cells[pkey].push(po);
 			}
 		},
 
 		getObjectById: function(id) {
-			var len = this.pobjList.length;
+			var len = this.pobj_list.length;
 			for (var i=0; i<len; i++) {
-				if (this.pobjList[i].objectId == id) {
-					return this.pobjList[i];
+				if (this.pobj_list[i].objectId == id) {
+					return this.pobj_list[i];
 				}
 			}
 			return undefined;
@@ -125,16 +125,16 @@
 		getObjectsAtLoc: function(x,y,exclude_po) {
 			var pobjs = [];
 			var xy = x+","+y;
-			if (this.pobjCells && this.pobjCells[xy]) {
-				var len = this.pobjCells[xy].length;
+			if (this.pobj_cells && this.pobj_cells[xy]) {
+				var len = this.pobj_cells[xy].length;
 				if (exclude_po) {
 					for (var i = 0; i < len; i++) {
-						if (this.pobjCells[xy][i] != exclude_po) {
-							pobjs.push(this.pobjCells[xy][i]); // TODO put Beings on top, or sort by 'zlayer' of some kind
+						if (this.pobj_cells[xy][i] != exclude_po) {
+							pobjs.push(this.pobj_cells[xy][i]); // TODO put Beings on top, or sort by 'zlayer' of some kind
 						}
 					}
 				} else {
-					pobjs = this.pobjCells[xy];
+					pobjs = this.pobj_cells[xy];
 				}
 			}
 			return pobjs;
@@ -148,9 +148,9 @@
 				var map = BFRL.current_game.map;
 				var canPass = (xy_key in map.cells); // is an actual map location
 				
-				if (canPass === true && map.pobjCells && map.pobjCells[xy_key]) { // can pass over all objects in that space
-					for(var i in map.pobjCells[xy_key]) {
-						var testpobj = map.pobjCells[xy_key][i];
+				if (canPass === true && map.pobj_cells && map.pobj_cells[xy_key]) { // can pass over all objects in that space
+					for(var i in map.pobj_cells[xy_key]) {
+						var testpobj = map.pobj_cells[xy_key][i];
 						if (ignoreIsPassable !== true) {
 							if (testpobj.isPassable === false && (xy_key != fx +","+fy)) {
 								canPass = false;
@@ -205,8 +205,8 @@
 				for (var i = 0; i < len; i++) {
 					var pxy = path[i][0] + "," + path[i][1];
 					var glyph = ".";
-					if (this.pobjCells && this.pobjCells[pxy]) {
-						glyph = (this.pobjCells[pxy][0].glyph || "*");
+					if (this.pobj_cells && this.pobj_cells[pxy]) {
+						glyph = (this.pobj_cells[pxy][0].glyph || "*");
 					}
 					BFRL.display.draw(path[i][0], path[i][1], glyph, '#ff0', '#000');
 				}

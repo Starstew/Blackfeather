@@ -27,7 +27,7 @@ BFRL.Game.prototype = {
 
     "generateMap": function() {
         this.map = new BFRL.Map();
-        this.map._addEntranceAndExit();
+        this.map.addEntranceAndExit();
     },
 
     "delveDeeper": function() {
@@ -48,11 +48,11 @@ BFRL.Game.prototype = {
 
         // place player
         if (!this.player) {
-            this.player = this.spawnAndPlaceBeing(BFRL.Player, this.map.freeCells);
+            this.player = this.spawnAndPlaceBeing(BFRL.Player, this.map.free_cells);
         } else {
             this.player.subscribeToMessages();
-            var index = Math.floor(ROT.RNG.getUniform() * this.map.freeCells.length);
-            var key = this.map.freeCells.splice(index, 1)[0];
+            var index = Math.floor(ROT.RNG.getUniform() * this.map.free_cells.length);
+            var key = this.map.free_cells.splice(index, 1)[0];
             var parts = key.split(",");
             var x = parseInt(parts[0]);
             var y = parseInt(parts[1]);
@@ -91,7 +91,7 @@ BFRL.Game.prototype = {
             if (mt_diff > (remaining * 1.5) || mt.prototype.definition.difficulty > half_quota) {
                 continue; // keep the harder monsters from soaking up slots
             }
-            var mon = this.spawnAndPlaceBeing(mt, this.map.freeCells);
+            var mon = this.spawnAndPlaceBeing(mt, this.map.free_cells);
             this.scheduler.add(mon, true);
             diffcount += mon.difficulty_rating;
             if (diffcount >= difficulty_quota) {
@@ -120,16 +120,16 @@ BFRL.Game.prototype = {
             BFRL.display.draw(x, y, this.fov_cells_list[key], fgcolor, bgcolor);
 
             // pobj on it?
-            if (this.map.pobjCells[key]) {
-                var pobj = this.map.pobjCells[key][0]; // draw the first one on the list
+            if (this.map.pobj_cells[key]) {
+                var pobj = this.map.pobj_cells[key][0]; // draw the first one on the list
                 pobj._draw();
             }
         }
     },
 
-    "spawnAndPlaceBeing": function(what, freeCells) {
-        var index = Math.floor(ROT.RNG.getUniform() * freeCells.length);
-        var key = freeCells.splice(index, 1)[0];
+    "spawnAndPlaceBeing": function(what, free_cells) {
+        var index = Math.floor(ROT.RNG.getUniform() * free_cells.length);
+        var key = free_cells.splice(index, 1)[0];
         var parts = key.split(",");
         var x = parseInt(parts[0]);
         var y = parseInt(parts[1]);
@@ -148,9 +148,9 @@ BFRL.Game.prototype = {
         }
 
         // filter from list of objects
-        for (var i in this.map.pobjList) {
-            if (this.map.pobjList[i] == pobj) {
-                this.map.pobjList.splice(i, 1);
+        for (var i in this.map.pobj_list) {
+            if (this.map.pobj_list[i] == pobj) {
+                this.map.pobj_list.splice(i, 1);
                 break;
             }
         }
@@ -163,7 +163,7 @@ BFRL.Game.prototype = {
 		Returns object that has property 'isOpen' (Boolean) and an optional 'bumpedEntity' */
     "getMoveResult": function(pobj, x, y) {
         var newKey = x + "," + y;
-        var e_array = this.map.pobjCells[newKey];
+        var e_array = this.map.pobj_cells[newKey];
         var ae;
         if (e_array && e_array.length > 0) {
             var len = e_array.length;

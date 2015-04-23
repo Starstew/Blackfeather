@@ -17,6 +17,7 @@ var BFRL = BFRL || {
     DISP_NEUTRAL: 0,
     DISP_FRIENDLY: 1,
     DISP_AGGRESSIVE: 2,
+    DISP_FEARFUL: 3,
 
     DMGTYPE_NONE: 0,
     DMGTYPE_BLUNT: 1,
@@ -65,8 +66,8 @@ var BFRL = BFRL || {
      },
 
     // vars
-    npcManifest: {}, // JSON of monsters/npc definitions
-    weaponManifest: {}, // JSON of all p(laceable)objs definitions
+    npc_manifest: {}, // JSON of monsters/npc definitions
+    weapon_manifest: {}, // JSON of all p(laceable)objs definitions
     npcTypes: [], // list of all npc object constructors (built from defs)
     weaponTypes: [], // list of all weapon constructors (built from defs)
     display: {}, // ROT.Display for game
@@ -107,17 +108,15 @@ var BFRL = BFRL || {
         if (!MonsterManual) {
             return;
         }
-        this.npcManifest = {};
+        this.npc_manifest = {};
 
         for (var i in MonsterManual) {
-            var is_valid = false;
-
             var mon = MonsterManual[i];
 
-            this.npcManifest[i] = new Function('x', 'y', 'BFRL.Being.call(this,x,y);');
-            this.npcManifest[i].extend(BFRL.Being);
-            this.npcManifest[i].prototype.definition = MonsterManual[i];
-            this.npcTypes.push(this.npcManifest[i]);
+            this.npc_manifest[i] = new Function('x', 'y', 'BFRL.Being.call(this,x,y);');
+            this.npc_manifest[i].extend(BFRL.Being);
+            this.npc_manifest[i].prototype.definition = MonsterManual[i];
+            this.npcTypes.push(this.npc_manifest[i]);
         }
     },
 
@@ -125,17 +124,15 @@ var BFRL = BFRL || {
         if (!Armory) {
             return;
         }
-        this.weaponManifest = {};
+        this.weapon_manifest = {};
 
         for (var i in Armory) {
-            var is_valid = false;
-
             var wep = Armory[i];
 
-            this.weaponManifest[i] = new Function('x', 'y', 'notObj', 'BFRL.Weapon.call(this,x,y,notObj);');
-            this.weaponManifest[i].extend(BFRL.Weapon);
-            this.weaponManifest[i].prototype.definition = Armory[i];
-            this.weaponTypes.push(this.weaponManifest[i]);
+            this.weapon_manifest[i] = new Function('x', 'y', 'notObj', 'BFRL.Weapon.call(this,x,y,notObj);');
+            this.weapon_manifest[i].extend(BFRL.Weapon);
+            this.weapon_manifest[i].prototype.definition = Armory[i];
+            this.weaponTypes.push(this.weapon_manifest[i]);
         }
     },
 
@@ -200,6 +197,7 @@ var BFRL = BFRL || {
     waitForNextPlayerInput: function() {
         // stop the engine and wait for next input
         this.current_game.engine.lock();
+        window.removeEventListener("keydown",this);
         window.addEventListener("keydown",this);
     },
 
